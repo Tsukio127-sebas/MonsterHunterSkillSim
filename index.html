@@ -1,0 +1,1838 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MH Wilds Skill Simulator v3.7.5</title>
+  <meta name="description" content="Monster Hunter Wilds向けのブラウザ型スキルシミュレーター。カテゴリ別トグル式スキル一覧・鑑定護石OCR/画像貼り付け・巨戟アーティア登録・追加可能スキル検索に対応。" />
+  <style>
+:root{
+  --bg:#0b0d0c;--panel:#141816;--panel2:#1b211e;--line:#313a35;--text:#ece9df;--muted:#a6ada8;
+  --gold:#c7a65b;--gold2:#e3c978;--green:#6f9e79;--red:#b75c54;--shadow:0 14px 38px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#1b211d 0,#0b0d0c 36%),var(--bg);color:var(--text);font-family:"Yu Gothic UI","Meiryo",system-ui,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;padding:24px 30px 20px;border-bottom:1px solid #252b28;background:linear-gradient(180deg,rgba(255,255,255,.025),transparent)}
+.eyebrow{letter-spacing:.22em;font-size:11px;color:var(--gold)}h1{font-family:Georgia,"Yu Mincho",serif;letter-spacing:.08em;margin:4px 0 2px;font-size:30px}.sub{margin:0;color:var(--muted);font-size:13px}.status-wrap{display:flex;align-items:center;gap:10px}.status{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:7px 11px}.status.loading{color:var(--gold2)}.status.ok{color:#9ed0a7}.status.error{color:#e1938b}
+.tabs{display:flex;gap:4px;padding:0 30px;border-bottom:1px solid var(--line);background:#0e110f;position:sticky;top:0;z-index:20}.tab,.skill-tab{border:0;background:transparent;color:var(--muted);cursor:pointer}.tab{padding:14px 18px;border-bottom:2px solid transparent}.tab.active{color:var(--text);border-color:var(--gold)}
+main{max-width:1500px;margin:0 auto;padding:22px}.tabpane{display:none}.tabpane.active{display:block}.layout{display:grid;grid-template-columns:390px minmax(0,1fr);gap:18px}.panel{background:linear-gradient(180deg,#161b18,#111512);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:8px;padding:18px}.panel h2{font-size:18px;margin:0 0 14px;font-weight:700}.left-panel{align-self:start;position:static;max-height:none;overflow:visible}
+.field-group{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}.field-group label{font-size:12px;color:var(--muted)}input,select,textarea{width:100%;background:#0d100e;color:var(--text);border:1px solid #36413b;border-radius:5px;padding:9px 10px;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--gold)}.section-title{margin:18px 0 8px;color:var(--gold2);font-size:12px;letter-spacing:.08em;font-weight:700}.search{margin-bottom:10px}.skill-category-toolbar{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 10px}.category-toggle{border:1px solid #3b453f;background:#141916;color:#aeb5af;border-radius:999px;padding:5px 8px;font-size:10px;cursor:pointer}.category-toggle.active{border-color:#9c8447;background:#2a2619;color:#e5cd83}.category-toggle.all{font-weight:700}.skill-catalog{border:1px solid var(--line);background:#0c0f0d;padding:8px;display:flex;flex-direction:column;gap:10px}.skill-category{border-bottom:1px solid #252d28;padding:0 0 10px}.skill-category:last-child{border-bottom:0;padding-bottom:0}.skill-category-head{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--gold2);font-size:12px;font-weight:800;margin:0 0 7px}.skill-category-head small{color:var(--muted);font-weight:400}.skill-button-grid{display:flex;flex-wrap:wrap;gap:6px}.skill-toggle{display:inline-flex;align-items:center;gap:6px;border:1px solid #3c463f;background:#151a17;color:#d6d6ce;border-radius:5px;padding:7px 9px;font-size:11px;cursor:pointer;transition:.12s ease}.skill-toggle:hover{border-color:#717e74;background:#1c231e}.skill-toggle.active{border-color:#b59850;background:#30291a;color:#f1d98e;box-shadow:inset 0 0 0 1px rgba(227,201,120,.12)}.skill-toggle .skill-max{font-size:9px;color:#8e9790}.skill-toggle.active .skill-max{color:#cbb873}.skill-toggle .kind-badge{font-size:8px;border:1px solid #465149;padding:1px 3px;border-radius:3px;color:#9da59f}.skill-empty{color:var(--muted);font-size:12px;padding:8px}
+.selected-skills{display:flex;flex-direction:column;gap:6px}.selected-skills.empty{color:var(--muted);font-size:13px;padding:10px;border:1px dashed var(--line)}.selected-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:6px;background:#0e120f;border:1px solid #2d3731;padding:7px 8px}.level-control{display:flex;align-items:center;gap:5px}.mini-btn{width:26px;height:26px;padding:0;border:1px solid #414c45;background:#202720;color:var(--text);cursor:pointer}.remove{border:0;background:transparent;color:#c4776e;cursor:pointer}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.check{display:flex;align-items:center;gap:8px;font-size:13px;margin:8px 0;color:#d5d5cd}.check input{width:auto}.primary,.ghost{border-radius:5px;padding:9px 12px;cursor:pointer}.primary{background:linear-gradient(#d2b565,#a88740);border:1px solid #e1cb89;color:#16120a;font-weight:800}.primary:hover{filter:brightness(1.08)}.primary:disabled{opacity:.45;cursor:not-allowed}.ghost{background:#171c19;border:1px solid #3b453f;color:var(--text)}.ghost:hover{border-color:#68756d}.ghost:disabled{opacity:.45;cursor:not-allowed}.ghost.danger{color:#e28b83;border-color:#633f3b}.ghost.small{padding:6px 9px;font-size:12px}.big{width:100%;padding:12px;margin-top:13px}.hint{font-size:11px;line-height:1.55;color:#8f9691;margin:10px 0 0}
+.result-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px}.result-head h2{margin-bottom:2px}.muted{font-size:12px;color:var(--muted)}.results{display:flex;flex-direction:column;gap:12px}.empty-state{min-height:390px;align-items:center;justify-content:center;color:var(--muted);text-align:center}.empty-state .crest{font-size:40px;color:#5b654f;margin-bottom:8px}.empty-state strong{color:#d9d8cf;font-size:16px}.empty-state span{font-size:12px}.result-card{border:1px solid #384239;background:linear-gradient(90deg,#121713,#171c18);border-radius:6px;overflow:hidden}.result-card-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#20261f;border-bottom:1px solid #363e37}.result-card-head strong{color:var(--gold2)}.score{font-size:11px;color:var(--muted)}.equipment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#2b332e}.equip{background:#121613;padding:9px 10px}.equip span{display:block;font-size:10px;color:#849086;margin-bottom:3px}.equip strong{font-size:13px}.equip small{display:block;color:#9da59f;font-size:11px;margin-top:3px}.skill-summary{padding:10px 12px;display:flex;gap:6px;flex-wrap:wrap}.skill-chip{border:1px solid #4d594f;background:#1d251f;border-radius:3px;padding:4px 7px;font-size:11px}.skill-chip.hit{border-color:#9b874e;color:#e1cb82}.slot-chip{color:#a6c7af}.card-actions{display:flex;justify-content:flex-end;padding:8px 12px;border-top:1px solid #29312b}.progress{height:4px;background:#242b27;margin-bottom:12px;overflow:hidden}.progress div{height:100%;width:45%;background:var(--gold);animation:slide 1.1s infinite ease-in-out}.hidden{display:none!important}@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+.charms-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-bottom:18px}.drop-zone{min-height:230px;border:1px dashed #58655c;background:#0d100e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-align:center;padding:20px}.drop-zone.drag,.drop-zone.paste-ready{border-color:var(--gold);background:#171910}.drop-zone span,.drop-zone small{color:var(--muted)}.upload-icon{font-size:38px;color:var(--gold)}.ocr-queue{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:10px}.ocr-thumb{position:relative;border:1px solid var(--line);background:#0b0e0c;padding:5px}.ocr-thumb img{width:100%;height:84px;object-fit:cover;display:block}.ocr-thumb button{position:absolute;right:5px;top:5px;border:0;background:rgba(0,0,0,.75);color:#fff;cursor:pointer}.ocr-actions{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}.paste-hint{margin-top:8px;border:1px solid #2d3731;background:#101411;padding:8px 10px;font-size:11px;color:#aeb6af}.paste-hint kbd{border:1px solid #4b554f;background:#202620;border-radius:3px;padding:1px 4px;color:#e5dfca}.form-card{background:#0d100e;border:1px solid var(--line);padding:12px}.charm-skill-row{display:grid;grid-template-columns:1fr 90px 32px;gap:7px;margin-bottom:7px}.slot-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px}.ocr-raw{margin:14px 0}.ocr-raw summary{cursor:pointer;color:var(--muted);font-size:12px}.inline-actions{display:flex;gap:8px}.registered-charms{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}.charm-card{border:1px solid #39423b;background:#111612;padding:11px}.charm-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.charm-card-head strong{color:var(--gold2)}.charm-card .skill-lines{font-size:12px;line-height:1.8}.charm-card .slot-line{font-size:12px;color:#a7c9b0;margin-top:6px}.charm-card .tools{margin-top:9px;display:flex;justify-content:flex-end;gap:6px}.data-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:14px 0 20px}.data-card{border:1px solid var(--line);background:#0e120f;padding:14px}.data-card span{display:block;color:var(--muted);font-size:11px}.data-card strong{font-size:23px;color:var(--gold2)}.spec-list{display:grid;gap:8px}.spec-list>div{display:grid;grid-template-columns:170px 1fr;gap:16px;padding:11px;border-bottom:1px solid #29312c}.spec-list strong{color:#d9c783}.spec-list span{color:#b2b8b3;font-size:13px}.source-box{display:flex;gap:14px;align-items:center;margin-top:20px;padding:12px;background:#0c0f0d;border:1px solid var(--line);font-size:12px}.source-box a{color:#cdb56d}.source-box strong{margin-right:5px}footer{max-width:1500px;margin:0 auto;padding:4px 22px 28px;display:flex;justify-content:space-between;color:#747b76;font-size:11px}
+@media(max-width:980px){.layout,.charms-layout{grid-template-columns:1fr}.left-panel{position:static;max-height:none}.data-cards{grid-template-columns:repeat(3,1fr)}.topbar{align-items:flex-start;flex-direction:column}.tabs{overflow:auto;padding-left:12px}.equipment-grid{grid-template-columns:1fr}.spec-list>div{grid-template-columns:1fr}.source-box{align-items:flex-start;flex-direction:column}}
+
+/* 巨戟アーティア登録 */
+.artian-form-actions{margin-top:14px;align-items:center}
+.artian-form-actions .primary{min-width:220px}
+.artian-card .skill-lines{line-height:2}
+.skill-tag{display:inline-block;min-width:58px;text-align:center;border:1px solid #4d594f;border-radius:3px;padding:1px 5px;margin-right:5px;font-size:10px}
+.group-tag{color:#b8d5bd}
+.series-tag{color:#e1cb82;border-color:#7e6d3f}
+.spec-list.compact>div{grid-template-columns:36px 1fr}
+.data-cards{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+
+/* v2: 検索候補・追加スキル・入力補助 */
+.charm-skill-row input.cs-name{min-width:0}
+.input-note{font-size:10px;color:#8f9691;margin:-2px 0 8px}
+.additional-panel{border:1px solid #5d5131;background:linear-gradient(180deg,#1a1a13,#111512);padding:14px;margin:0 0 14px;border-radius:7px}.relaxation-panel{border:1px solid #6a493d;background:linear-gradient(180deg,#211714,#111512);padding:12px;margin:0 0 14px;border-radius:6px}.relaxation-list{display:flex;flex-direction:column;gap:7px;margin-top:10px}.relaxation-btn{width:100%;text-align:left;border:1px solid #674a40;background:#201713;color:#e7d8ce;border-radius:5px;padding:9px 10px;cursor:pointer}.relaxation-btn:hover{border-color:#a06f5d;background:#291b16}.relaxation-btn strong{color:#e6b39e}.relaxation-btn small{display:block;margin-top:4px;color:#a99b94}.relaxation-note{font-size:11px;color:#aa9b94;line-height:1.55}
+.additional-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #393421}
+.additional-panel-head strong{color:var(--gold2);font-size:14px}.additional-panel-head span{font-size:10px;color:var(--muted);line-height:1.55}.additional-panel-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.additional-summary{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}.additional-summary span{border:1px solid #443d27;background:#17170f;border-radius:999px;padding:4px 8px;font-size:10px;color:#c9b978}
+.additional-skills{display:flex;flex-direction:column;gap:13px;max-height:none;overflow:visible}
+.additional-category{border:1px solid #30372f;background:#0d110e;border-radius:6px;overflow:hidden}.additional-category-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;background:#181d19;border-bottom:1px solid #30372f}.additional-category-head strong{font-size:12px;color:#dac57f}.additional-category-head small{font-size:9px;color:#89928b}
+.additional-skill-list{display:flex;flex-direction:column}.additional-skill-row{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr);gap:10px;align-items:center;padding:8px 10px;border-bottom:1px solid #242b26}.additional-skill-row:last-child{border-bottom:0}.additional-skill-meta{min-width:0}.additional-skill-name{display:block;font-size:12px;color:#e2e0d6;font-weight:700}.additional-skill-name .kind-badge{margin-left:5px;vertical-align:1px}.additional-skill-current{display:inline-block;margin-top:3px;border:1px solid #444d46;border-radius:999px;padding:2px 6px;font-size:9px;color:#9da69f}.additional-levels{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start}.add-skill-level{min-width:62px;border:1px solid #526052;background:#171e19;color:#dddcd3;border-radius:5px;padding:7px 8px;font-size:11px;cursor:pointer;text-align:center}.add-skill-level:hover{border-color:var(--gold);background:#252317;color:#f0d98e}.add-skill-level strong{display:block;font-size:11px}.add-skill-level small{display:block;color:#909992;font-size:8px;margin-top:2px}.add-skill-level:hover small{color:#c8b978}
+.search-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.search-actions .big{margin-top:0}.section-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 8px}.section-title-row .section-title{margin:0}.reset-skills-btn{padding:5px 8px;font-size:10px}.additional-trigger.active{border-color:#a98e4c;color:#ead38c;background:#262316}
+@media(max-width:760px){.additional-skill-row{grid-template-columns:1fr}.additional-levels{justify-content:flex-start}.search-actions{grid-template-columns:1fr}}
+.resist-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.resist-grid .field-group{margin-bottom:4px}.resist-grid input{padding:7px 6px}
+.artian-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.artian-status{font-size:11px;color:#9ed0a7;margin-top:8px;min-height:1.4em}
+.result-resists{color:#9aa59c}.source-box{flex-wrap:wrap}
+/* v3.5: 装飾品の集約表示 / 装飾品込み発動スキル */
+.deco-summary{padding:10px 12px;border-top:1px solid #29312b;background:#0f1411}.deco-summary-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.deco-summary-head strong{color:var(--gold2);font-size:12px}.deco-summary-head span{color:var(--muted);font-size:10px}.deco-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.deco-group{border:1px solid #303a33;background:#151a17;padding:8px}.deco-group>strong{display:block;font-size:10px;color:#9fb1a4;margin-bottom:5px}.deco-list{display:flex;flex-wrap:wrap;gap:5px}.deco-pill{border:1px solid #4d594f;background:#1b231d;border-radius:4px;padding:4px 6px;font-size:10px;color:#d9ded9}.deco-pill b{color:#f0d890}.deco-pill small{display:block;margin-top:2px;color:#9da59f}.all-skill-summary{padding:10px 12px;border-top:1px solid #29312b}.all-skill-summary>strong{display:block;color:#c9b573;font-size:11px;margin-bottom:6px}.all-skill-list{display:flex;flex-wrap:wrap;gap:5px}.all-skill-chip{border:1px solid #435047;background:#172019;border-radius:3px;padding:3px 6px;font-size:10px;color:#cdd4ce}.all-skill-chip.requested{border-color:#927d48;color:#ead28b}.all-skill-chip.deco-added{border-color:#55735f;color:#a8d4b3}.deco-none{color:var(--muted);font-size:10px}.deco-source-note{font-size:9px;color:#89928b;margin-left:3px}@media(max-width:760px){.deco-groups{grid-template-columns:1fr}}
+@media(max-width:620px){.resist-grid{grid-template-columns:repeat(2,1fr)}.artian-slots{grid-template-columns:repeat(3,1fr)}}
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">MONSTER HUNTER WILDS</div>
+      <h1>SKILL SIMULATOR</h1>
+      <p class="sub">最終アップデート環境対応 / カテゴリ別スキルトグル / 護石画像貼り付けOCR / 巨戟アーティア保存</p>
+    </div>
+    <div class="status-wrap">
+      <span id="dataStatus" class="status loading">データ読込中</span>
+      <button id="reloadDataBtn" class="ghost">データ再読込</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="メインタブ">
+    <button class="tab active" data-tab="sim">スキルシミュ</button>
+    <button class="tab" data-tab="charms">鑑定護石</button>
+    <button class="tab" data-tab="artian">巨戟アーティア</button>
+    <button class="tab" data-tab="sets">マイセット</button>
+    <button class="tab" data-tab="data">データ</button>
+  </nav>
+
+  <main>
+    <section id="tab-sim" class="tabpane active">
+      <div class="layout">
+        <aside class="panel left-panel">
+          <h2>検索条件</h2>
+
+          <div class="field-group">
+            <label>武器種</label>
+            <select id="weaponType"></select>
+          </div>
+          <div class="field-group">
+            <label>武器</label>
+            <select id="weaponSelect"></select>
+          </div>
+
+          <div class="section-title">発動させたいスキル</div>
+          <input id="skillSearch" class="search" type="search" placeholder="スキル名を検索（全カテゴリ対象）" />
+          <div id="skillCategoryToolbar" class="skill-category-toolbar"></div>
+          <div id="skillCatalog" class="skill-catalog"></div>
+          <p class="hint">スキルボタンはトグル式です。クリックで選択、もう一度クリックで解除。カテゴリを1つ選ぶとそのカテゴリだけ表示し、さらに選ぶと複数カテゴリを同時表示できます。「全て表示」で解除します。</p>
+
+          <div class="section-title-row">
+            <div class="section-title">選択中</div>
+            <button id="resetSelectedSkillsBtn" class="ghost reset-skills-btn" type="button">選択スキルをリセット</button>
+          </div>
+          <div id="selectedSkills" class="selected-skills empty">スキルを選択してください</div>
+
+          <div class="section-title">絞り込み</div>
+          <div class="grid2">
+            <div class="field-group"><label>最低レア度</label><select id="rarityMin"></select></div>
+            <div class="field-group"><label>最高レア度</label><select id="rarityMax"></select></div>
+            <div class="field-group"><label>最低防御力</label><input id="minDefense" type="number" min="0" value="0"></div>
+            <div class="field-group"><label>結果件数</label><select id="resultLimit"><option>20</option><option selected>50</option><option>100</option></select></div>
+          </div>
+          <div class="section-title">最低属性耐性（任意）</div>
+          <div class="resist-grid">
+            <div class="field-group"><label>火</label><input id="minFire" type="number" value="-99"></div>
+            <div class="field-group"><label>水</label><input id="minWater" type="number" value="-99"></div>
+            <div class="field-group"><label>雷</label><input id="minThunder" type="number" value="-99"></div>
+            <div class="field-group"><label>氷</label><input id="minIce" type="number" value="-99"></div>
+            <div class="field-group"><label>龍</label><input id="minDragon" type="number" value="-99"></div>
+          </div>
+
+          <label class="check"><input id="useTranscend" type="checkbox" checked> RARE5/6の限界突破スロットを使用</label>
+          <label class="check"><input id="useDecorations" type="checkbox" checked> 装飾品を使用</label>
+          <label class="check"><input id="includeRegisteredCharms" type="checkbox" checked> 登録済み鑑定護石を候補に含める</label>
+          <div class="input-note"><strong>生産護石：</strong>登録不要で常に検索候補へ含まれます。検索に使用するのは各護石の現行最大強化段階のみです。</div>
+          <label class="check"><input id="includeRegisteredArtian" type="checkbox" checked> 武器未指定時、登録済み巨戟アーティアも候補に含める</label>
+
+          <div class="search-actions">
+            <button id="searchBuildsBtn" class="primary big">条件で検索</button>
+            <button id="showAdditionalSkillsBtn" class="ghost big additional-trigger" type="button">追加できるスキル一覧</button>
+          </div>
+          <div class="hint">スキルの選択・解除・Lv変更時は自動で再検索します。「追加できるスキル一覧」は現在選択中のスキルを固定し、装備・護石・巨戟アーティア・装飾品を再探索して追加可能な全スキルLvを一覧表示します。</div>
+          <p class="hint">※通常の装備検索は高速探索です。「追加できるスキル一覧」は表示中の50件とは別に拡張再探索を行い、全スキル定義を候補として判定します。防具・武器・生産護石・登録鑑定護石・登録巨戟アーティア・装飾品（複合珠の副スキル含む）を再評価します。</p>
+        </aside>
+
+        <section class="panel result-panel">
+          <div class="result-head">
+            <div>
+              <h2>検索結果</h2>
+              <div id="resultSummary" class="muted">条件を設定して検索してください</div>
+            </div>
+            <button id="clearSearchBtn" class="ghost">条件クリア</button>
+          </div>
+          <div id="searchProgress" class="progress hidden"><div></div></div>
+          <div id="relaxationPanel" class="relaxation-panel hidden">
+            <div><strong>条件を少し緩める候補</strong><br><span class="relaxation-note">現在の全条件を満たす装備はありません。下のスキル条件を外すと、残りの選択スキルをすべて発動できる候補があります。</span></div>
+            <div id="relaxationSuggestions" class="relaxation-list"></div>
+          </div>
+          <div id="additionalSkillsPanel" class="additional-panel hidden">
+            <div class="additional-panel-head">
+              <div><strong>追加できるスキル一覧</strong><br><span>現在選択中のスキルを固定条件として、表示中の結果とは別に装備・生産護石・登録鑑定護石・登録巨戟アーティア・装飾品を拡張再探索します。全スキル定義を候補として到達可能Lvを確認し、Lvを選ぶと検索条件へ追加して結果と「選択中」を自動更新します。</span></div>
+              <div class="additional-panel-actions"><button id="hideAdditionalSkills" class="ghost small">閉じる</button></div>
+            </div>
+            <div id="additionalSkillsSummary" class="additional-summary"></div>
+            <div id="additionalSkills" class="additional-skills"></div>
+          </div>
+          <div id="results" class="results empty-state">
+            <div class="crest">◆</div>
+            <strong>スキルを選択して検索</strong>
+            <span>防具・護石・装飾品を組み合わせ、必要な装飾品まで自動でまとめます。</span>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="tab-charms" class="tabpane">
+      <div class="charms-layout">
+        <section class="panel">
+          <div class="result-head">
+            <div><h2>画像から鑑定護石を登録</h2><p class="muted">ゲーム内スクリーンショットを読み取り、確認後に保存します。</p></div>
+          </div>
+          <div id="dropZone" class="drop-zone" tabindex="0">
+            <input id="charmImages" type="file" accept="image/*" multiple hidden />
+            <div class="upload-icon">▧</div>
+            <strong>画像をドラッグ＆ドロップ / 貼り付け</strong>
+            <span>クリックして選択、またはスクリーンショットをコピーして Ctrl+V</span>
+            <small>複数画像に対応 / OCR後は必ず内容を確認してください</small>
+          </div>
+          <div class="paste-hint">Windowsのスクリーンショット（<kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>）後、このタブ上で <kbd>Ctrl</kbd>+<kbd>V</kbd> すると直接追加できます。</div>
+          <div id="ocrQueue" class="ocr-queue"></div>
+          <div class="ocr-actions">
+            <button id="pasteCharmBtn" class="ghost">クリップボードから貼り付け</button>
+            <button id="runOcrBtn" class="primary" disabled>選択画像を解析</button>
+            <span id="ocrStatus" class="muted">画像未選択</span>
+          </div>
+          <p class="hint">OCRはTesseract.jsの日本語認識を利用します。装飾品が装着済みの護石画面はスロット誤認識が起きやすいため、登録前の手動確認を推奨します。</p>
+        </section>
+
+        <section class="panel">
+          <h2>認識結果 / 手動登録</h2>
+          <div class="form-card">
+            <div class="grid2">
+              <div class="field-group"><label>護石名（任意）</label><input id="charmName" placeholder="例：鑑定護石 #12"></div>
+              <div class="field-group"><label>レア度</label><select id="charmRarity"><option>5</option><option>6</option><option>7</option><option selected>8</option></select></div>
+            </div>
+
+            <div class="section-title">スキル</div>
+            <div class="input-note">文字を入力すると候補を検索できます。鑑定護石に付与されないシリーズ/グループスキルは候補から除外しています。</div>
+            <datalist id="charmSkillList"></datalist>
+            <div id="charmSkillRows"></div>
+            <button id="addCharmSkill" class="ghost small">＋ スキル追加</button>
+
+            <div class="section-title">スロット</div>
+            <div id="charmSlotRows"></div>
+
+            <details class="ocr-raw">
+              <summary>OCR原文を確認</summary>
+              <textarea id="ocrRaw" rows="6" placeholder="OCR結果がここに表示されます"></textarea>
+            </details>
+
+            <button id="saveCharmBtn" class="primary big">護石を登録</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel registered-panel">
+        <div class="result-head">
+          <div><h2>登録済み鑑定護石</h2><div id="charmCount" class="muted">0件</div></div>
+          <div class="inline-actions">
+            <button id="exportCharmsBtn" class="ghost">JSON書き出し</button>
+            <button id="importCharmsBtn" class="ghost">JSON読込</button>
+            <input id="importCharmFile" type="file" accept="application/json,.json" hidden>
+          </div>
+        </div>
+        <div id="registeredCharms" class="registered-charms"></div>
+      </section>
+    </section>
+
+
+    <section id="tab-artian" class="tabpane">
+      <div class="charms-layout">
+        <section class="panel">
+          <div class="result-head">
+            <div>
+              <h2>巨戟アーティア武器を登録</h2>
+              <p class="muted">護石と同様に、自分が所持している巨戟アーティアのスキル構成を保存します。</p>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <div class="field-group">
+              <label>登録名（任意）</label>
+              <input id="artianName" placeholder="例：麻痺太刀 ヌシ＋黒蝕">
+            </div>
+
+            <div class="grid2">
+              <div class="field-group">
+                <label>武器種</label>
+                <select id="artianWeaponType"></select>
+              </div>
+              <div class="field-group">
+                <label>ベースのRARE8アーティア武器</label>
+                <select id="artianBaseWeapon"></select>
+              </div>
+            </div>
+
+            <div class="section-title">武器スロット</div>
+            <div class="artian-slots">
+              <select id="artianSlot1"><option value="0">ー</option><option value="1">①</option><option value="2">②</option><option value="3">③</option></select>
+              <select id="artianSlot2"><option value="0">ー</option><option value="1">①</option><option value="2">②</option><option value="3">③</option></select>
+              <select id="artianSlot3"><option value="0">ー</option><option value="1">①</option><option value="2">②</option><option value="3">③</option></select>
+            </div>
+            <p class="hint">ベース武器をCSVから特定できた場合は自動入力します。候補が取得できない場合でも手動で設定して登録できます。</p>
+
+            <div class="section-title">巨戟アーティア付与スキル</div>
+            <div class="grid2">
+              <div class="field-group">
+                <label>グループスキル</label>
+                <select id="artianGroupSkill"></select>
+              </div>
+              <div class="field-group">
+                <label>シリーズスキル</label>
+                <select id="artianSeriesSkill"></select>
+              </div>
+            </div>
+
+            <p class="hint">巨戟アーティアでは、グループスキルとシリーズスキルが1種類ずつ付与されます。検索時はそれぞれ「1部位分」として加算します。武器スロットと通常の武器スキルは選択したベース武器から引き継ぎます。</p>
+
+            <div class="inline-actions artian-form-actions">
+              <button id="saveArtianBtn" class="primary">巨戟アーティアを登録</button>
+              <button id="cancelArtianEditBtn" class="ghost hidden">編集をキャンセル</button>
+            </div>
+            <div id="artianSaveStatus" class="artian-status"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>使い方</h2>
+          <div class="spec-list compact">
+            <div><strong>1</strong><span>武器種とベースのRARE8アーティア武器を選択</span></div>
+            <div><strong>2</strong><span>実際に付いたグループスキルとシリーズスキルを選択</span></div>
+            <div><strong>3</strong><span>登録するとスキルシミュの武器欄に「【登録巨戟】」として追加</span></div>
+            <div><strong>4</strong><span>登録武器を選んで通常どおりスキル検索</span></div>
+          </div>
+          <p class="hint">復元ボーナスや攻撃力などのDPS要素は保存対象にしていません。スキルシミュレーションに必要なスキル・スロットのみ扱います。</p>
+        </section>
+      </div>
+
+      <section class="panel registered-panel">
+        <div class="result-head">
+          <div>
+            <h2>登録済み巨戟アーティア</h2>
+            <div id="artianCount" class="muted">0件</div>
+          </div>
+          <div class="inline-actions">
+            <button id="exportArtianBtn" class="ghost">JSON書き出し</button>
+            <button id="importArtianBtn" class="ghost">JSON読込</button>
+            <input id="importArtianFile" type="file" accept="application/json,.json" hidden>
+          </div>
+        </div>
+        <div id="registeredArtianWeapons" class="registered-charms"></div>
+      </section>
+    </section>
+
+    <section id="tab-sets" class="tabpane">
+      <section class="panel">
+        <div class="result-head">
+          <div><h2>マイセット</h2><p class="muted">検索結果から保存した装備をブラウザに保持します。</p></div>
+          <button id="clearSetsBtn" class="ghost danger">すべて削除</button>
+        </div>
+        <div id="mySets" class="results"></div>
+      </section>
+    </section>
+
+    <section id="tab-data" class="tabpane">
+      <section class="panel data-panel">
+        <h2>データと対応仕様</h2>
+        <div class="data-cards">
+          <div class="data-card"><span>スキル</span><strong id="countSkills">-</strong></div>
+          <div class="data-card"><span>防具</span><strong id="countArmors">-</strong></div>
+          <div class="data-card"><span>武器</span><strong id="countWeapons">-</strong></div>
+          <div class="data-card"><span>装飾品</span><strong id="countDecos">-</strong></div>
+          <div class="data-card"><span>生産護石</span><strong id="countCharms">-</strong></div>
+          <div class="data-card"><span>鑑定護石</span><strong id="countUserCharms">0</strong></div>
+          <div class="data-card"><span>登録巨戟</span><strong id="countUserArtian">0</strong></div>
+        </div>
+
+        <div class="spec-list">
+          <div><strong>最終アップデート環境</strong><span>Ver.1.041系を基準に、ゴグマジオス / 巨戟アーティア / 歴戦王アルシュ等を含む最終環境を想定。</span></div>
+          <div><strong>限界突破強化</strong><span>RARE5は合計3段階、RARE6は合計2段階のスロット拡張パターンを検索へ反映。</span></div>
+          <div><strong>鑑定護石</strong><span>最大3スキルを登録可能。文字検索対応。付与対象の武器/防具スキルのみを候補にし、武器用/防具用スロットを分離して保存。</span></div>
+          <div><strong>巨戟アーティア</strong><span>所持武器ごとにグループスキル1種＋シリーズスキル1種を保存。ベース武器取得失敗時も手動登録でき、武器未指定検索では登録巨戟を自動候補化。</span></div>
+          <div><strong>スキル一覧UI</strong><span>全スキルをカテゴリ別に展開し、各スキルをトグルボタンで選択。カテゴリ表示もボタンでON/OFF可能。</span></div>
+          <div><strong>画像貼り付け</strong><span>鑑定護石タブでスクリーンショットをCtrl+V貼り付け、またはクリップボード読込ボタンからOCRキューへ直接追加。</span></div>
+          <div><strong>検索キャッシュ</strong><span>装飾品配置・装飾品候補・防具正規化・スキル/スロット抽出・最大強化生産護石・武器参照を安全にキャッシュ。登録護石/巨戟そのものは固定キャッシュせず、編集後の不整合を防止。</span></div>
+          <div><strong>CSV自動フォールバック</strong><span>GitHub Raw取得に失敗した場合はjsDelivrへ自動切替。どれか1経路の障害だけで全体が未読込になる問題を軽減。</span></div>
+          <div><strong>追加可能スキル</strong><span>検索結果から到達可能な追加LvをLvごとに全て表示。シリーズ/グループは実際に発動する段階だけを表示します。</span></div>
+          <div><strong>データ更新</strong><span>MITライセンスのWildsSim公開CSVをオンライン取得。手元CSVへの差し替えも可能な構造です。</span></div>
+        </div>
+
+
+        <div class="panel" style="margin-top:18px">
+          <div class="result-head">
+            <div><h2>ユーザーデータのバックアップ / 引継ぎ</h2><p class="muted">鑑定護石・巨戟アーティア・マイセットを1ファイルで保存/復元します。</p></div>
+            <div class="inline-actions">
+              <button id="exportAllUserDataBtn" class="ghost">全データ書き出し</button>
+              <button id="importAllUserDataBtn" class="ghost">全データ読込</button>
+              <input id="importAllUserDataFile" type="file" accept="application/json,.json" hidden>
+            </div>
+          </div>
+          <p class="hint">旧版から移行する場合は、旧版で護石/巨戟をJSON書き出しして個別読込するか、今後はこの「全データ書き出し」を使用してください。固定ランチャーから起動すると、バージョン更新でHTMLファイル名が変わっても同じ保存領域を使えます。</p>
+        </div>
+        <div class="source-box">
+          <strong>参照</strong>
+          <a href="https://github.com/EXXXI/WildsSim" target="_blank" rel="noreferrer">WildsSim (MIT)</a>
+          <a href="https://game8.jp/mhwilds/671551" target="_blank" rel="noreferrer">Game8 スキルシミュレーター</a>
+          <a href="https://gamewith.jp/mhwilds/484058" target="_blank" rel="noreferrer">GameWith スキルシミュレーター</a>
+          <a href="https://gamewith.jp/mhwilds/470562" target="_blank" rel="noreferrer">GameWith スキル一覧</a>
+          <a href="https://gamewith.jp/mhwilds/486300" target="_blank" rel="noreferrer">GameWith シリーズスキル</a>
+          <a href="https://gamewith.jp/mhwilds/486285" target="_blank" rel="noreferrer">GameWith グループスキル</a>
+          <a href="https://gamewith.jp/mhwilds/534657" target="_blank" rel="noreferrer">GameWith 巨戟アーティア</a>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <span>非公式ファンツール / CAPCOMとは関係ありません。</span>
+    <span>v3.7.5 / データ確認基準: 2026-09-25</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script>
+(() => {
+  'use strict';
+
+  // 外部CSVは複数経路を順番に試す。GitHub Rawが一時的に失敗してもjsDelivrへ自動フォールバックする。
+  const CSV_BASES = [
+    'https://raw.githubusercontent.com/EXXXI/WildsSim/main/src/SimModel/',
+    'https://cdn.jsdelivr.net/gh/EXXXI/WildsSim@main/src/SimModel/'
+  ];
+  const SOURCES = {
+    skills:'MHWilds_SKILL.csv', decos:'MHWilds_DECO.csv', head:'MHWilds_EQUIP_HEAD.csv', body:'MHWilds_EQUIP_BODY.csv',
+    arm:'MHWilds_EQUIP_ARM.csv', waist:'MHWilds_EQUIP_WST.csv', leg:'MHWilds_EQUIP_LEG.csv', weapon:'MHWilds_WEAPON.csv', charm:'MHWilds_CHARM.csv'
+  };
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const state = {
+    data:{skills:[],decos:[],head:[],body:[],arm:[],waist:[],leg:[],weapon:[],charm:[]},
+    loaded:false, selectedSkills:new Map(), activeSkillCategories:new Set(), ocrFiles:[], currentOcrIndex:0, lastSearchRows:[], liveSearchTimer:null, searchRunId:0, additionalSkillsOpen:false, additionalSearchRunId:0,
+    // 安全な計算キャッシュ: すべて純粋な入力値をキーにし、ユーザー編集データそのものは固定キャッシュしない。
+    additionalSearchCache:new Map(), additionalDecoUpperCache:new Map(), decoCache:{armor:null,weapon:null}, decoSkillNameCache:null,
+    rowSkillCache:new WeakMap(), rowSlotCache:new WeakMap(), rowCandidateCache:{normal:new WeakMap(),transcended:new WeakMap()}, armorRowsCache:new Map(), preselectCache:new Map(),
+    relevantDecoCache:new Map(), fitDecoCache:new Map(), craftCharmRowsCache:null, baseWeaponLookupCache:new Map(), skillDefIndex:new Map(),
+    cacheStats:{fitHit:0,fitMiss:0,relevantHit:0,relevantMiss:0,rowSkillHit:0,rowSkillMiss:0},
+    userCharms:loadJson('mhw_user_charms',[]), userArtianWeapons:loadJson('mhw_user_artian_weapons',[]), editingArtianId:null, mySets:loadJson('mhw_my_sets',[])
+  };
+
+  const verifiedSeriesSkills = [
+    '闢獣の力','火竜の力','兇爪竜の力','護鎖刃竜の命脈','波衣竜の守護','煌雷竜の力','雷顎竜の闘志','雪獅子の闘志','鎧竜の守護','凍峰竜の反逆','暗器蛸の力','獄焔蛸の反逆','黒蝕竜の力','鎖刃竜の飢餓','泡狐竜の力','白熾龍の脈動','花舞の祈り','千刃竜の闘志','海竜の渦雷','踊火の祈り','暗黒騎士の証','オメガレゾナンス','夢灯の祈り','巨戟龍の黙示録','祝謡の祈り'
+  ];
+  const verifiedGroupSkills = [
+    '鱗張りの技法','革細工の柔性','毛皮の昂揚','甲虫の知らせ','護竜の脈動','ヌシの誇り','甲虫の擬態','革細工の滑性','鱗重ねの工夫','毛皮の誘惑','護竜の守り','ヌシの憤激','先達の導き','栄光の誉れ','祝祭の巡り','ヌシの魂','拳を極めし者'
+  ];
+
+  // シリーズ/グループは「装備数」そのものではなく、実際に発動する効果段階で扱う。
+  // シリーズ: 2部位=I、4部位=II / グループ: 3部位で発動。
+  const setBonusActivationDefs = {
+    '闢獣の力':{kind:'series',thresholds:[2,4],labels:['力自慢Ⅰ','力自慢Ⅱ'],display:'力自慢'},
+    '火竜の力':{kind:'series',thresholds:[2,4],labels:['灼熱化Ⅰ','灼熱化Ⅱ'],display:'灼熱化'},
+    '兇爪竜の力':{kind:'series',thresholds:[2,4],labels:['連撃強化Ⅰ','連撃強化Ⅱ'],display:'連撃強化'},
+    '護鎖刃竜の命脈':{kind:'series',thresholds:[2,4],labels:['破壊衝動Ⅰ','破壊衝動Ⅱ'],display:'破壊衝動'},
+    '波衣竜の守護':{kind:'series',thresholds:[2,4],labels:['守護のヴェールⅠ','守護のヴェールⅡ'],display:'守護のヴェール'},
+    '煌雷竜の力':{kind:'series',thresholds:[2,4],labels:['雷々響鳴Ⅰ','雷々響鳴Ⅱ'],display:'雷々響鳴'},
+    '雷顎竜の闘志':{kind:'series',thresholds:[2,4],labels:['無尽蔵Ⅰ','無尽蔵Ⅱ'],display:'無尽蔵'},
+    '雪獅子の闘志':{kind:'series',thresholds:[2,4],labels:['ウォークライⅠ','ウォークライⅡ'],display:'ウォークライ'},
+    '鎧竜の守護':{kind:'series',thresholds:[2,4],labels:['無傷の重装Ⅰ','無傷の重装Ⅱ'],display:'無傷の重装'},
+    '凍峰竜の反逆':{kind:'series',thresholds:[2,4],labels:['束縛反攻Ⅰ','束縛反攻Ⅱ'],display:'束縛反攻'},
+    '暗器蛸の力':{kind:'series',thresholds:[2,4],labels:['蛮勇の食卓Ⅰ','蛮勇の食卓Ⅱ'],display:'蛮勇の食卓'},
+    '獄焔蛸の反逆':{kind:'series',thresholds:[2,4],labels:['恨撃Ⅰ','恨撃Ⅱ'],display:'恨撃'},
+    '黒蝕竜の力':{kind:'series',thresholds:[2,4],labels:['黒蝕一体Ⅰ','黒蝕一体Ⅱ'],display:'黒蝕一体'},
+    '鎖刃竜の飢餓':{kind:'series',thresholds:[2,4],labels:['加速再生Ⅰ','加速再生Ⅱ'],display:'加速再生'},
+    '泡狐竜の力':{kind:'series',thresholds:[2,4],labels:['泡沫の舞Ⅰ','泡沫の舞Ⅱ'],display:'泡沫の舞'},
+    '白熾龍の脈動':{kind:'series',thresholds:[2,4],labels:['超回復力Ⅰ','超回復力Ⅱ'],display:'超回復力'},
+    '花舞の祈り':{kind:'series',thresholds:[2,4],labels:['地の恵み〖花舞〗Ⅰ','地の恵み〖花舞〗Ⅱ'],display:'地の恵み〖花舞〗'},
+    '千刃竜の闘志':{kind:'series',thresholds:[2,4],labels:['千刃の身躱しⅠ','千刃の身躱しⅡ'],display:'千刃の身躱し'},
+    '海竜の渦雷':{kind:'series',thresholds:[2,4],labels:['蒼雷一閃Ⅰ','蒼雷一閃Ⅱ'],display:'蒼雷一閃'},
+    '踊火の祈り':{kind:'series',thresholds:[2,4],labels:['地の恵み〖踊火〗Ⅰ','地の恵み〖踊火〗Ⅱ'],display:'地の恵み〖踊火〗'},
+    '暗黒騎士の証':{kind:'series',thresholds:[2,4],labels:['ダークアーツ','ブラックナイト'],display:'ダークアーツ / ブラックナイト'},
+    'オメガレゾナンス':{kind:'series',thresholds:[2,4],labels:['レゾナンスⅠ','レゾナンスⅡ'],display:'レゾナンス'},
+    '夢灯の祈り':{kind:'series',thresholds:[2,4],labels:['地の恵み〖夢灯〗Ⅰ','地の恵み〖夢灯〗Ⅱ'],display:'地の恵み〖夢灯〗'},
+    '巨戟龍の黙示録':{kind:'series',thresholds:[2,4],labels:['宣戦呼応Ⅰ','宣戦呼応Ⅱ'],display:'宣戦呼応'},
+    '祝謡の祈り':{kind:'series',thresholds:[2,4],labels:['地の恵み〖祝謡〗Ⅰ','地の恵み〖祝謡〗Ⅱ'],display:'地の恵み〖祝謡〗'},
+    '鱗張りの技法':{kind:'group',thresholds:[3],labels:['乗り名人'],display:'乗り名人'},
+    '革細工の柔性':{kind:'group',thresholds:[3],labels:['採集の達人'],display:'採集の達人'},
+    '毛皮の昂揚':{kind:'group',thresholds:[3],labels:['不屈'],display:'不屈'},
+    '甲虫の知らせ':{kind:'group',thresholds:[3],labels:['ハニーハンター'],display:'ハニーハンター'},
+    '護竜の脈動':{kind:'group',thresholds:[3],labels:['竜乳活性'],display:'竜乳活性'},
+    'ヌシの誇り':{kind:'group',thresholds:[3],labels:['激励'],display:'激励'},
+    '甲虫の擬態':{kind:'group',thresholds:[3],labels:['忍び歩き'],display:'忍び歩き'},
+    '革細工の滑性':{kind:'group',thresholds:[3],labels:['滑走強化'],display:'滑走強化'},
+    '鱗重ねの工夫':{kind:'group',thresholds:[3],labels:['奮起'],display:'奮起'},
+    '毛皮の誘惑':{kind:'group',thresholds:[3],labels:['陽動'],display:'陽動'},
+    '護竜の守り':{kind:'group',thresholds:[3],labels:['竜都の護り'],display:'竜都の護り'},
+    'ヌシの憤激':{kind:'group',thresholds:[3],labels:['死中に活'],display:'死中に活'},
+    '先達の導き':{kind:'group',thresholds:[3],labels:['探索者の幸運'],display:'探索者の幸運'},
+    '栄光の誉れ':{kind:'group',thresholds:[3],labels:['幸運'],display:'幸運'},
+    '祝祭の巡り':{kind:'group',thresholds:[3],labels:['剥ぎ取り名人'],display:'剥ぎ取り名人'},
+    'ヌシの魂':{kind:'group',thresholds:[3],labels:['根性〖果敢〗'],display:'根性〖果敢〗'},
+    '拳を極めし者':{kind:'group',thresholds:[3],labels:['殺意の波動'],display:'殺意の波動'}
+  };
+  const fallbackSkills = [
+    ['見切り',5,'weapon'],['超会心',5,'weapon'],['攻撃',5,'weapon'],['匠',5,'weapon'],['達人芸',1,'weapon'],['集中',3,'weapon'],['高速変形',3,'weapon'],['砲術',3,'weapon'],['ガード性能',3,'weapon'],
+    ['弱点特効',5,'armor'],['挑戦者',5,'armor'],['連撃',5,'armor'],['渾身',3,'armor'],['巧撃',5,'armor'],['フルチャージ',5,'armor'],['災禍転福',3,'armor'],['無我の境地',3,'armor'],['属性吸収',3,'armor'],['防御',7,'armor'],['回避性能',5,'armor'],['回避距離ＵＰ',3,'armor']
+  ].map(([name,max,kind])=>({name,max,kind,category:kind})).concat(
+    Object.entries(setBonusActivationDefs).map(([name,d])=>({name,max:d.thresholds.length,kind:d.kind,category:d.kind==='series'?'シリーズスキル':'グループスキル',displayName:d.display,activationThresholds:d.thresholds,activationLabels:d.labels,rawMax:Math.max(...d.thresholds)}))
+  );
+
+  function loadJson(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}
+  function saveJson(k,v){localStorage.setItem(k,JSON.stringify(v))}
+  function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function num(v){const n=Number(String(v??'').replace(/[^0-9.-]/g,''));return Number.isFinite(n)?n:0}
+
+  function stableSkillMapKey(map){
+    return Object.entries(map||{}).filter(([,v])=>num(v)!==0).sort(([a],[b])=>a.localeCompare(b,'ja')).map(([k,v])=>`${k}:${num(v)}`).join('|');
+  }
+  function stableSlotsKey(slots){return [...(slots||[])].map(num).filter(Boolean).sort((a,b)=>a-b).join('')||'-'}
+  function limitedCacheSet(map,key,value,limit=12000){
+    if(map.has(key))map.delete(key);
+    map.set(key,value);
+    while(map.size>limit)map.delete(map.keys().next().value);
+    return value;
+  }
+  function resetSafeCalculationCaches(){
+    state.rowSkillCache=new WeakMap(); state.rowSlotCache=new WeakMap();
+    state.rowCandidateCache={normal:new WeakMap(),transcended:new WeakMap()};
+    state.armorRowsCache.clear(); state.preselectCache.clear(); state.relevantDecoCache.clear(); state.fitDecoCache.clear();
+    state.craftCharmRowsCache=null; state.baseWeaponLookupCache.clear();
+    state.decoCache={armor:null,weapon:null}; state.decoSkillNameCache=null;
+    state.additionalSearchCache.clear(); state.additionalDecoUpperCache.clear();
+    state.cacheStats={fitHit:0,fitMiss:0,relevantHit:0,relevantMiss:0,rowSkillHit:0,rowSkillMiss:0};
+  }
+
+  function parseCSV(text){
+    const rows=[]; let row=[], cell='', q=false;
+    for(let i=0;i<text.length;i++){
+      const c=text[i], n=text[i+1];
+      if(c==='"') { if(q&&n==='"'){cell+='"';i++;} else q=!q; }
+      else if(c===','&&!q){row.push(cell);cell='';}
+      else if((c==='\n'||c==='\r')&&!q){ if(c==='\r'&&n==='\n')i++; row.push(cell);cell=''; if(row.some(x=>x!==''))rows.push(row); row=[]; }
+      else cell+=c;
+    }
+    if(cell||row.length){row.push(cell);rows.push(row)}
+    if(!rows.length)return [];
+    const headers=rows.shift().map(h=>h.trim());
+    return rows.map(r=>Object.fromEntries(headers.map((h,i)=>[h,(r[i]??'').trim()])));
+  }
+
+  async function fetchTextWithTimeout(url,timeoutMs=12000){
+    const ctl=new AbortController();
+    const timer=setTimeout(()=>ctl.abort(),timeoutMs);
+    try{
+      const res=await fetch(url,{cache:'no-store',mode:'cors',credentials:'omit',signal:ctl.signal});
+      if(!res.ok)throw new Error(`HTTP ${res.status}`);
+      const text=await res.text();
+      if(!text || text.length<10)throw new Error('empty response');
+      return text;
+    }finally{clearTimeout(timer)}
+  }
+  async function fetchCSV(file){
+    const errors=[];
+    for(const base of CSV_BASES){
+      const url=base+file;
+      try{
+        const text=await fetchTextWithTimeout(url);
+        const rows=parseCSV(text);
+        if(!rows.length)throw new Error('CSV rows=0');
+        return {rows,url};
+      }catch(e){errors.push(`${url} -> ${e?.name==='AbortError'?'timeout':(e?.message||e)}`)}
+    }
+    throw new Error(`${file} の取得に失敗: ${errors.join(' / ')}`);
+  }
+
+  function skillKindFromCategory(cat=''){
+    const c=String(cat||'');
+    if(c.includes('シリーズ'))return 'series';
+    if(c.includes('グループ'))return 'group';
+    if(c.includes('武器'))return 'weapon';
+    if(c.includes('防具'))return 'armor';
+    return 'armor';
+  }
+  function normalizeSkills(){
+    const grouped=new Map();
+    for(const r of state.data.skills){
+      const name=r['スキル系統']; if(!name)continue;
+      const max=Math.max(num(r['必要ポイント']),grouped.get(name)?.max||0);
+      grouped.set(name,{name,max:max||1,kind:skillKindFromCategory(r['カテゴリ']),category:r['カテゴリ']||''});
+    }
+    // シリーズ/グループは生の装備数ではなく、実際の発動段階へ正規化する。
+    for(const [name,a] of Object.entries(setBonusActivationDefs)){
+      const prev=grouped.get(name)||{name,kind:a.kind,category:a.kind==='series'?'シリーズスキル':'グループスキル'};
+      grouped.set(name,{...prev,kind:a.kind,category:a.kind==='series'?'シリーズスキル':'グループスキル',max:a.thresholds.length,rawMax:Math.max(...a.thresholds),displayName:a.display,activationThresholds:a.thresholds,activationLabels:a.labels});
+    }
+    state.skillDefs=[...grouped.values()].sort((a,b)=>a.kind.localeCompare(b.kind)||(a.displayName||a.name).localeCompare((b.displayName||b.name),'ja'));
+    if(!state.skillDefs.length) state.skillDefs=fallbackSkills;
+    state.skillDefIndex=new Map((state.skillDefs||fallbackSkills).map(x=>[x.name,x]));
+  }
+
+  async function loadAllData(){
+    const status=$('#dataStatus');
+    status.className='status loading'; status.textContent='データ読込中'; status.title='';
+    try{
+      // 全ファイルを並列取得。ただし各ファイル内では GitHub Raw -> jsDelivr の順に自動再試行する。
+      const settled=await Promise.allSettled(Object.entries(SOURCES).map(async([k,f])=>{
+        const loaded=await fetchCSV(f);
+        return [k,loaded.rows,loaded.url];
+      }));
+      const failed=[]; const loadedEntries=[]; const usedSources=new Set();
+      settled.forEach((r,i)=>{
+        if(r.status==='fulfilled'){
+          loadedEntries.push(r.value); usedSources.add(new URL(r.value[2]).hostname);
+        }else{
+          const [k,f]=Object.entries(SOURCES)[i];
+          failed.push(`${f}: ${r.reason?.message||r.reason}`);
+        }
+      });
+      if(failed.length)throw new Error(failed.join('\n'));
+      for(const [k,rows] of loadedEntries)state.data[k]=rows;
+      resetSafeCalculationCaches();
+      state.loaded=true; normalizeSkills();
+      status.className='status ok';
+      status.textContent='最新CSV読込済み';
+      status.title=`取得元: ${[...usedSources].join(', ')}`;
+    }catch(err){
+      console.warn('CSV load failed',err);
+      state.loaded=false; state.skillDefs=fallbackSkills; state.skillDefIndex=new Map(fallbackSkills.map(x=>[x.name,x]));
+      status.className='status error'; status.textContent='外部CSV未読込（再読込してください）';
+      status.title=String(err?.message||err);
+    }
+    hydrateUI();
+  }
+
+  function hydrateUI(){
+    sanitizeStoredCharms(); renderSkillCatalog(); renderSelectedSkills(); populateWeapons(); populateRarity(); renderCharms(); populateArtianForm(); renderArtianWeapons(); renderMySets(); renderCounts(); populateCharmSkillDatalist(); resetCharmForm();
+  }
+
+  function populateRarity(){
+    for(const id of ['#rarityMin','#rarityMax']){
+      const el=$(id); el.innerHTML=''; for(let r=1;r<=8;r++){const o=document.createElement('option');o.value=r;o.textContent=`RARE ${r}`;el.appendChild(o)}
+    }
+    $('#rarityMin').value='5'; $('#rarityMax').value='8';
+  }
+
+  const canonicalWeaponTypes=['大剣','太刀','片手剣','双剣','ハンマー','狩猟笛','ランス','ガンランス','スラッシュアックス','チャージアックス','操虫棍','ライトボウガン','ヘビィボウガン','弓'];
+  const weaponTypeAliases={
+    'ガンス':'ガンランス','スラアク':'スラッシュアックス','チャアク':'チャージアックス',
+    'ライト':'ライトボウガン','ヘビィ':'ヘビィボウガン'
+  };
+  function normalizeWeaponType(t=''){return weaponTypeAliases[t]||t}
+  function sameWeaponType(a,b){return normalizeWeaponType(a)===normalizeWeaponType(b)}
+  function weaponTypes(){
+    const actual=[...state.data.weapon.map(r=>normalizeWeaponType(r['武器種'])).filter(Boolean),...state.userArtianWeapons.map(w=>normalizeWeaponType(w.weaponType)).filter(Boolean)];
+    return [...new Set([...canonicalWeaponTypes,...actual])];
+  }
+  function populateWeapons(){
+    const types=weaponTypes();
+    const typeSel=$('#weaponType'), current=normalizeWeaponType(typeSel.value);
+    typeSel.innerHTML='<option value="">指定なし</option>'+types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+    if(types.includes(current))typeSel.value=current;
+    updateWeaponList();
+  }
+  function updateWeaponList(){
+    const type=$('#weaponType').value;
+    const rows=type?state.data.weapon.filter(r=>sameWeaponType(r['武器種'],type)):[];
+    const registered=type?state.userArtianWeapons.filter(w=>sameWeaponType(w.weaponType,type)):[];
+    const normalOptions=rows.map(r=>`<option value="base:${encodeURIComponent(r['名前'])}">${esc(r['名前'])} / R${esc(r['レア度'])}</option>`).join('');
+    const userOptions=registered.map(w=>`<option value="artian:${esc(w.id)}">【登録巨戟】${esc(w.name)} / ${esc(w.groupSkill)}＋${esc(w.seriesSkill)}</option>`).join('');
+    $('#weaponSelect').innerHTML='<option value="">指定なし（登録巨戟は自動候補）</option>'+userOptions+normalOptions;
+  }
+
+  const skillCategoryOrder=['回復系','アイテム強化系','弾強化','耐性系','スタミナ系','攻撃系','会心系','属性系','斬れ味','ガード','アクション(攻撃)','アクション(特殊)','採取系','シリーズスキル','グループスキル','その他'];
+  function normalizeSkillCategoryName(cat=''){
+    const c=String(cat||'').trim();
+    const aliases={'シリーズ':'シリーズスキル','グループ':'グループスキル','防御・耐性系':'耐性系','防御系':'耐性系'};
+    if(aliases[c])return aliases[c];
+    return skillCategoryOrder.includes(c)?c:'';
+  }
+  function categorizeSkill(def){
+    if(def.kind==='series')return 'シリーズスキル';
+    if(def.kind==='group')return 'グループスキル';
+    const fromData=normalizeSkillCategoryName(def.category);
+    if(fromData)return fromData;
+    const n=def.name||'';
+    const has=(re)=>re.test(n);
+    if(has(/回復速度|体力回復量|回復量|環境利用の知識|体力回復/))return '回復系';
+    if(has(/アイテム使用強化|広域化|早食い|満足感|キノコ大好き|節食/))return 'アイテム強化系';
+    if(has(/通常弾|貫通弾|散弾|竜の矢|剛射|特殊射撃|弾丸節約|フォースショット|弾導強化/))return '弾強化';
+    if(has(/耐性|防御|精霊の加護|耳栓|耐震|風圧|気絶|毒耐性|麻痺耐性|睡眠耐性|悪臭耐性|属性やられ|ひるみ軽減/))return '耐性系';
+    if(has(/体術|ランナー|スタミナ急速回復|スタミナ|腹減り/))return 'スタミナ系';
+    if(has(/見切り|弱点特効|超会心|渾身|力の解放|会心撃|抜刀術【技】/))return '会心系';
+    if(has(/属性攻撃強化|火属性|水属性|雷属性|氷属性|龍属性|毒属性|麻痺属性|睡眠属性|爆破属性|特殊会心|属性会心|属性変換/))return '属性系';
+    if(has(/匠|業物|達人芸|剛刃研磨|砥石使用高速化|斬れ味/))return '斬れ味';
+    if(has(/ガード性能|ガード強化|攻めの守勢|煽衛/))return 'ガード';
+    if(has(/攻撃|挑戦者|連撃|巧撃|フルチャージ|災禍転福|火事場力|逆襲|破壊王|ＫＯ術|KO術|スタミナ奪取|飛燕|不屈|急襲|鎖刃刺撃|暗黒/))return '攻撃系';
+    if(has(/集中|高速変形|砲術|砲弾装填|強化持続|抜刀術|納刀術|集中モード|溜打強化|チャージマスター|笛吹き名人|特殊射撃/))return 'アクション(攻撃)';
+    if(has(/回避性能|回避距離|納刀|しゃがみ|クライマー|乗り名人|飛び込み|整備|威嚇|陽動|緩衝|オトモへの采配|無我の境地/))return 'アクション(特殊)';
+    if(has(/植生学|地質学|採集|ハニーハンター|釣り|昆虫標本|運搬|腹減り耐性/))return '採取系';
+    return 'その他';
+  }
+  function skillDefByName(name){return state.skillDefIndex?.get(name)||(state.skillDefs||fallbackSkills).find(s=>s.name===name)}
+  function isSetBonusDef(def){return !!def&&(def.kind==='series'||def.kind==='group')&&Array.isArray(def.activationThresholds)}
+  function requiredRawPoints(def,level){
+    if(!isSetBonusDef(def))return Math.max(1,num(level));
+    const idx=Math.max(0,Math.min(def.activationThresholds.length-1,num(level)-1));
+    return def.activationThresholds[idx];
+  }
+  function activationLevelFromRaw(def,raw){
+    if(!isSetBonusDef(def))return Math.min(def?.max||99,Math.max(0,num(raw)));
+    let lv=0;for(let i=0;i<def.activationThresholds.length;i++)if(num(raw)>=def.activationThresholds[i])lv=i+1;return lv;
+  }
+  function activationLabel(def,level){
+    if(!isSetBonusDef(def))return `${def?.name||''} Lv${level}`;
+    return def.activationLabels?.[Math.max(0,num(level)-1)]||`${def.displayName||def.name} ${level}`;
+  }
+  function skillCatalogName(def){return def?.displayName||def?.name||''}
+  function targetDisplayLevel(def,rawRequired){
+    if(!isSetBonusDef(def))return num(rawRequired);
+    const idx=def.activationThresholds.findIndex(x=>x===num(rawRequired));
+    return idx>=0?idx+1:activationLevelFromRaw(def,rawRequired);
+  }
+
+  function renderSkillCategoryToolbar(){
+    const defs=state.skillDefs||fallbackSkills;
+    const existing=new Set(defs.map(categorizeSkill));
+    const cats=skillCategoryOrder.filter(c=>existing.has(c));
+    const filterActive=state.activeSkillCategories.size>0;
+    $('#skillCategoryToolbar').innerHTML=`<button class="category-toggle all ${filterActive?'':'active'}" data-all="1">全て表示</button>`+cats.map(c=>`<button class="category-toggle ${state.activeSkillCategories.has(c)?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+    $('#skillCategoryToolbar .category-toggle[data-all]').onclick=()=>{state.activeSkillCategories.clear();renderSkillCatalog()};
+    $$('#skillCategoryToolbar .category-toggle[data-cat]').forEach(b=>b.onclick=()=>{
+      const c=b.dataset.cat;
+      if(state.activeSkillCategories.has(c))state.activeSkillCategories.delete(c);
+      else state.activeSkillCategories.add(c);
+      renderSkillCatalog();
+    });
+  }
+  function renderSkillCatalog(){
+    renderSkillCategoryToolbar();
+    const q=$('#skillSearch').value.trim().toLowerCase();
+    const defs=(state.skillDefs||fallbackSkills).filter(s=>!q||[s.name,s.displayName,...(s.activationLabels||[])].filter(Boolean).some(x=>String(x).toLowerCase().includes(q)));
+    const grouped=new Map();
+    for(const s of defs){const cat=categorizeSkill(s);if(state.activeSkillCategories.size&&!state.activeSkillCategories.has(cat))continue;if(!grouped.has(cat))grouped.set(cat,[]);grouped.get(cat).push(s)}
+    const html=skillCategoryOrder.filter(c=>grouped.has(c)).map(cat=>{
+      const arr=grouped.get(cat).sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+      return `<section class="skill-category"><div class="skill-category-head"><span>${esc(cat)}</span><small>${arr.length}件</small></div><div class="skill-button-grid">${arr.map(s=>{const selected=state.selectedSkills.get(s.name);const badge=s.kind==='weapon'?'武器':s.kind==='armor'?'防具':'';const main=skillCatalogName(s);const selectedText=selected?(isSetBonusDef(s)?` → ${activationLabel(s,selected.level)}`:` Lv${selected.level}`):'';const maxText=isSetBonusDef(s)?(s.kind==='series'?`${s.max}段階`:'3部位発動'):`max${s.max}`;const source=isSetBonusDef(s)?`<span class="kind-badge">${esc(s.name)}</span>`:'';return `<button class="skill-toggle ${selected?'active':''}" data-skill="${esc(s.name)}"><span>${esc(main)}${esc(selectedText)}</span><span class="skill-max">${esc(maxText)}</span>${source}${badge?`<span class="kind-badge">${badge}</span>`:''}</button>`}).join('')}</div></section>`
+    }).join('');
+    $('#skillCatalog').innerHTML=html||'<div class="skill-empty">該当するスキルはありません。</div>';
+    $$('#skillCatalog .skill-toggle[data-skill]').forEach(el=>el.addEventListener('click',()=>toggleSkill(el.dataset.skill)));
+  }
+
+  function clearRealtimeSearchDisplay(){
+    state.searchRunId++;
+    state.additionalSearchRunId++;
+    clearTimeout(state.liveSearchTimer);
+    state.liveSearchTimer=null;
+    state.lastSearchRows=[];
+    $('#searchProgress').classList.add('hidden');
+    $('#searchBuildsBtn').disabled=false;
+    state.additionalSkillsOpen=false;
+    $('#showAdditionalSkillsBtn')?.classList.remove('active');
+    $('#additionalSkillsPanel').classList.add('hidden');
+    $('#additionalSkills').innerHTML='';
+    $('#additionalSkillsSummary').innerHTML='';
+    $('#relaxationPanel').classList.add('hidden');
+    $('#relaxationSuggestions').innerHTML='';
+    $('#results').className='results';
+    $('#results').innerHTML='<div class="muted">スキルを選択すると自動で検索します。</div>';
+  }
+  function scheduleLiveSearch(delay=220){
+    clearTimeout(state.liveSearchTimer);
+    if(!state.loaded)return;
+    if(!state.selectedSkills.size){clearRealtimeSearchDisplay();return}
+    state.liveSearchTimer=setTimeout(()=>{state.liveSearchTimer=null;searchBuilds({silentEmpty:true})},delay);
+  }
+
+  function toggleSkill(name){
+    const def=(state.skillDefs||fallbackSkills).find(s=>s.name===name); if(!def)return;
+    if(state.selectedSkills.has(name))state.selectedSkills.delete(name);
+    else state.selectedSkills.set(name,{name,level:Math.min(1,def.max),max:def.max,kind:def.kind});
+    renderSelectedSkills(); renderSkillCatalog(); scheduleLiveSearch();
+  }
+  function selectSkill(name){
+    const def=(state.skillDefs||fallbackSkills).find(s=>s.name===name); if(!def)return;
+    if(!state.selectedSkills.has(name))state.selectedSkills.set(name,{name,level:Math.min(1,def.max),max:def.max,kind:def.kind});
+    renderSelectedSkills(); renderSkillCatalog(); scheduleLiveSearch();
+  }
+  function renderSelectedSkills(){
+    const box=$('#selectedSkills');
+    const resetBtn=$('#resetSelectedSkillsBtn');
+    if(resetBtn)resetBtn.disabled=!state.selectedSkills.size;
+    if(!state.selectedSkills.size){box.className='selected-skills empty';box.textContent='スキルを選択してください';return}
+    box.className='selected-skills';
+    box.innerHTML=[...state.selectedSkills.values()].map(s=>{const def=skillDefByName(s.name)||s;const set=isSetBonusDef(def);const label=set?activationLabel(def,s.level):`${s.name} Lv${s.level}`;const sub=set?`<small class="kind-badge">${esc(def.name)} / ${requiredRawPoints(def,s.level)}部位</small>`:'';const controls=s.max>1?`<div class="level-control"><button class="mini-btn minus">−</button><strong>${set?esc(label):`Lv${s.level}`}</strong><button class="mini-btn plus">＋</button></div>`:`<div class="level-control"><strong>${esc(label)}</strong></div>`;return `<div class="selected-row" data-name="${esc(s.name)}"><span>${esc(set?skillCatalogName(def):s.name)} ${sub}</span>${controls}<button class="remove">×</button></div>`}).join('');
+    $$('#selectedSkills .selected-row').forEach(row=>{
+      const name=row.dataset.name, s=state.selectedSkills.get(name);
+      const minus=row.querySelector('.minus'),plus=row.querySelector('.plus');
+      if(minus)minus.onclick=()=>{s.level=Math.max(1,s.level-1);renderSelectedSkills();renderSkillCatalog();scheduleLiveSearch()};
+      if(plus)plus.onclick=()=>{s.level=Math.min(s.max,s.level+1);renderSelectedSkills();renderSkillCatalog();scheduleLiveSearch()};
+      row.querySelector('.remove').onclick=()=>{state.selectedSkills.delete(name);renderSelectedSkills();renderSkillCatalog();scheduleLiveSearch()};
+    });
+  }
+
+  function extractSkills(row,maxPairs=7){
+    if(!row||typeof row!=='object')return {};
+    let byPairs=state.rowSkillCache.get(row);
+    if(!byPairs){byPairs=new Map();state.rowSkillCache.set(row,byPairs)}
+    if(byPairs.has(maxPairs)){state.cacheStats.rowSkillHit++;return byPairs.get(maxPairs)}
+    state.cacheStats.rowSkillMiss++;
+    const out={}; for(let i=1;i<=maxPairs;i++){const n=row[`スキル系統${i}`],v=num(row[`スキル値${i}`]);if(n&&v)out[n]=(out[n]||0)+v}
+    byPairs.set(maxPairs,out);return out;
+  }
+  function slotsOf(row){
+    if(!row||typeof row!=='object')return [0,0,0];
+    if(state.rowSlotCache.has(row))return state.rowSlotCache.get(row);
+    const slots=[num(row['スロット1']),num(row['スロット2']),num(row['スロット3'])];state.rowSlotCache.set(row,slots);return slots;
+  }
+  const transMap={
+    5:{'000':'111','100':'211','110':'221','111':'222','200':'311','210':'321','220':'331','221':'332','222':'333','300':'321','310':'331','311':'332','320':'332','321':'333','330':'333'},
+    6:{'000':'110','100':'210','110':'220','111':'221','200':'310','210':'320','220':'330','221':'331','222':'332','300':'311','310':'321','311':'322','320':'331','321':'332','330':'332'}
+  };
+  function transcendedSlots(row){
+    const r=num(row['レア度']), s=slotsOf(row); if(!$('#useTranscend').checked||!transMap[r])return s;
+    if((row['名前']||'').includes('ミツネ'))return s; // 例外装備は誤適用防止のため元スロットを維持
+    const key=s.join(''); const mapped=transMap[r][key]; return mapped?[...mapped].map(Number):s;
+  }
+  function armorRows(part){
+    const min=num($('#rarityMin').value),max=num($('#rarityMax').value),key=`${part}|${min}|${max}`;
+    if(state.armorRowsCache.has(key))return state.armorRowsCache.get(key);
+    return limitedCacheSet(state.armorRowsCache,key,state.data[part].filter(r=>num(r['レア度'])>=min&&num(r['レア度'])<=max),48);
+  }
+
+  function requestedMap(){return Object.fromEntries([...state.selectedSkills.values()].map(s=>{const def=skillDefByName(s.name)||s;return [s.name,requiredRawPoints(def,s.level)]}))}
+  function mergeSkills(...maps){const out={};for(const m of maps)for(const [k,v] of Object.entries(m||{}))out[k]=(out[k]||0)+v;return out}
+  function requestedScore(sk,req){let hit=0,miss=0;for(const [k,v] of Object.entries(req)){hit+=Math.min(sk[k]||0,v);miss+=Math.max(0,v-(sk[k]||0))}return {hit,miss}}
+  function slotValue(slots){return slots.reduce((a,s)=>a+(s===3?2.0:s===2?1.25:s===1?.65:0),0)}
+
+  function decorationSlotKind(row){
+    // WildsSim の MHWilds_DECO.csv はスロットタイプを数値で保持する。
+    // 0 = 防具用、1 = 武器用。旧/別形式の「防具」「武器」表記にも対応する。
+    const raw=String(row?.['スロットタイプ']??'').trim();
+    if(raw==='1'||raw.toLowerCase()==='weapon'||raw.includes('武器'))return 'weapon';
+    if(raw==='0'||raw.toLowerCase()==='armor'||raw.includes('防具'))return 'armor';
+    return '';
+  }
+  function decoCandidates(kind){
+    // メイン検索・追加スキル解析の両方で大量に参照するためキャッシュする。
+    if(state.decoCache?.[kind])return state.decoCache[kind];
+    const list=state.data.decos.filter(d=>decorationSlotKind(d)===kind)
+      .map(d=>({name:d['名前'],size:num(d['スロットサイズ']),skills:extractSkills(d,2),kind}))
+      .filter(d=>d.name&&d.size>0&&Object.keys(d.skills||{}).length);
+    if(!state.decoCache)state.decoCache={armor:null,weapon:null};
+    state.decoCache[kind]=list;
+    return list;
+  }
+  function decorationSkillNames(){
+    if(!$('#useDecorations').checked)return new Set();
+    if(state.decoSkillNameCache)return state.decoSkillNameCache;
+    const names=new Set();
+    for(const kind of ['armor','weapon'])for(const d of decoCandidates(kind))for(const [name,v] of Object.entries(d.skills||{}))if(num(v)>0)names.add(name);
+    state.decoSkillNameCache=names;
+    return names;
+  }
+  function skillCanComeFromDecoration(name){return decorationSkillNames().has(name)}
+  function relevantDecos(kind,req){
+    const key=`${kind}|${stableSkillMapKey(req)}`;
+    if(state.relevantDecoCache.has(key)){state.cacheStats.relevantHit++;return state.relevantDecoCache.get(key)}
+    state.cacheStats.relevantMiss++;
+    const list=decoCandidates(kind).filter(d=>Object.keys(d.skills).some(k=>num(req?.[k])>0));
+    return limitedCacheSet(state.relevantDecoCache,key,list,900);
+  }
+
+  function fitDecorations(baseSkills, armorSlots, weaponSlots, req){
+    // 装飾品で付く全スキルを finalSkills に加算する。複合珠の副スキルも含む。
+    const used=[],usedDetails=[]; let skills={...baseSkills};
+    const remainingArmor=[], remainingWeapon=[];
+    if(!$('#useDecorations').checked){
+      return {skills,used,usedDetails,remainingArmorSlots:[...armorSlots].filter(Boolean),remainingWeaponSlots:[...weaponSlots].filter(Boolean)};
+    }
+    const cacheKey=`b:${stableSkillMapKey(baseSkills)}|a:${stableSlotsKey(armorSlots)}|w:${stableSlotsKey(weaponSlots)}|r:${stableSkillMapKey(req)}`;
+    const cached=state.fitDecoCache.get(cacheKey);
+    if(cached){state.cacheStats.fitHit++;return cached}
+    state.cacheStats.fitMiss++;
+    const armorDecos=relevantDecos('armor',req);
+    const weaponDecos=relevantDecos('weapon',req);
+    function fill(slots,decos,remaining,kind){
+      // 小さい珠を大きいスロットに先に入れないよう、スロットは小さい順で評価。
+      const sorted=[...slots].filter(Boolean).sort((a,b)=>a-b);
+      for(const slot of sorted){
+        let best=null,bestGain=0,bestWaste=999;
+        for(const d of decos){
+          if(d.size>slot)continue;
+          let gain=0;
+          for(const[k,v]of Object.entries(d.skills))gain+=Math.min(v,Math.max(0,(req[k]||0)-(skills[k]||0)));
+          const waste=slot-d.size;
+          if(gain>bestGain||(gain===bestGain&&gain>0&&waste<bestWaste)){bestGain=gain;bestWaste=waste;best=d}
+        }
+        if(best&&bestGain>0){
+          skills=mergeSkills(skills,best.skills); // ここで複合装飾品の全スキルを反映
+          used.push(best.name);
+          usedDetails.push({name:best.name,kind,size:best.size,slot,skills:{...best.skills}});
+        }else remaining.push(slot);
+      }
+    }
+    fill(armorSlots,armorDecos,remainingArmor,'armor'); fill(weaponSlots,weaponDecos,remainingWeapon,'weapon');
+    return limitedCacheSet(state.fitDecoCache,cacheKey,{skills,used,usedDetails,remainingArmorSlots:remainingArmor,remainingWeaponSlots:remainingWeapon},12000);
+  }
+
+  function normalizeUsedDecorationDetails(deco){
+    if(Array.isArray(deco?.usedDetails)&&deco.usedDetails.length)return deco.usedDetails;
+    // 旧マイセット互換: 名前だけ保存されている場合はデータから種類を補完する。
+    return (deco?.used||[]).map(name=>{
+      const row=state.data.decos.find(d=>d['名前']===name);
+      const kind=decorationSlotKind(row)||'armor';
+      return {name,kind,size:num(row?.['スロットサイズ']),slot:num(row?.['スロットサイズ']),skills:row?extractSkills(row,2):{}};
+    });
+  }
+  function groupedDecorations(deco){
+    const map=new Map();
+    for(const d of normalizeUsedDecorationDetails(deco)){
+      const key=`${d.kind}|${d.name}`;
+      if(!map.has(key))map.set(key,{...d,count:0});
+      map.get(key).count++;
+    }
+    return [...map.values()].sort((a,b)=>a.kind.localeCompare(b.kind)||b.size-a.size||a.name.localeCompare(b.name,'ja'));
+  }
+  function decorationEffectText(skills={}){
+    return Object.entries(skills).filter(([,v])=>num(v)>0).map(([k,v])=>`${k}+${v}`).join(' / ');
+  }
+  function decorationSummaryHtml(deco){
+    const groups=groupedDecorations(deco), armor=groups.filter(x=>x.kind==='armor'), weapon=groups.filter(x=>x.kind==='weapon');
+    const render=(arr,label)=>`<div class="deco-group"><strong>${label}</strong><div class="deco-list">${arr.length?arr.map(d=>`<span class="deco-pill">${esc(d.name)} <b>×${d.count}</b><small>${esc(decorationEffectText(d.skills)||'スキル情報なし')}</small></span>`).join(''):'<span class="deco-none">なし</span>'}</div></div>`;
+    return `<div class="deco-summary"><div class="deco-summary-head"><strong>必要な装飾品</strong><span>この結果で指定スキルを成立させるために自動配置</span></div><div class="deco-groups">${render(weapon,'武器装飾品')}${render(armor,'防具装飾品')}</div></div>`;
+  }
+  function allActivatedSkillsHtml(r,req){
+    const decoSkillNames=new Set(normalizeUsedDecorationDetails(r.deco).flatMap(d=>Object.keys(d.skills||{})));
+    const items=[];
+    for(const [name,raw] of Object.entries(r.finalSkills||{})){
+      const def=skillDefByName(name);
+      if(isSetBonusDef(def))continue;
+      const level=Math.min(num(def?.max)||99,num(raw));
+      if(level<=0)continue;
+      const cls=[req[name]?'requested':'',decoSkillNames.has(name)?'deco-added':''].filter(Boolean).join(' ');
+      items.push({name,level,cls,requested:!!req[name]});
+    }
+    items.sort((a,b)=>Number(b.requested)-Number(a.requested)||a.name.localeCompare(b.name,'ja'));
+    const bonus=(state.skillDefs||fallbackSkills).filter(isSetBonusDef).map(def=>{const lv=activationLevelFromRaw(def,r.finalSkills?.[def.name]||0);return lv?{name:activationLabel(def,lv),level:0,cls:req[def.name]?'requested':'',requested:!!req[def.name]}:null}).filter(Boolean);
+    const all=items.concat(bonus);
+    return `<div class="all-skill-summary"><strong>装飾品込みの発動スキル</strong><div class="all-skill-list">${all.length?all.map(x=>`<span class="all-skill-chip ${x.cls}">${esc(x.name)}${x.level?` Lv${x.level}`:''}${x.cls.includes('deco-added')?'<span class="deco-source-note">装飾品含む</span>':''}</span>`).join(''):'<span class="deco-none">発動スキルなし</span>'}</div></div>`;
+  }
+
+  function charmSkillDefs(){return (state.skillDefs||fallbackSkills).filter(s=>s.kind==='armor'||s.kind==='weapon')}
+  function charmSkillDef(name){return (state.skillDefs||fallbackSkills).find(s=>s.name===name)}
+  function isCharmForbiddenSkill(name){const d=charmSkillDef(name);return d?.kind==='series'||d?.kind==='group'||verifiedSeriesSkills.includes(name)||verifiedGroupSkills.includes(name)}
+  function isCharmLegalSkill(name){const d=charmSkillDef(name);return !!d&&(d.kind==='armor'||d.kind==='weapon')}
+  function sanitizeStoredCharms(){
+    let changed=false;
+    state.userCharms=state.userCharms.map(c=>{const skills=(c.skills||[]).filter(s=>{const keep=!isCharmForbiddenSkill(s.name);if(!keep)changed=true;return keep});return {...c,skills}});
+    if(changed)saveJson('mhw_user_charms',state.userCharms);
+  }
+  function normalizeUserCharm(c){
+    const skills={}; for(const s of c.skills||[])if(s.name&&s.level&&!isCharmForbiddenSkill(s.name))skills[s.name]=(skills[s.name]||0)+num(s.level);
+    const armorSlots=(c.slots||[]).filter(s=>s.type==='armor').map(s=>num(s.size));
+    const weaponSlots=(c.slots||[]).filter(s=>s.type==='weapon').map(s=>num(s.size));
+    return {name:c.name||'鑑定護石',rarity:c.rarity||8,skills,armorSlots,weaponSlots,user:true,id:c.id};
+  }
+  const romanCharmRank={'Ⅰ':1,'Ⅱ':2,'Ⅲ':3,'Ⅳ':4,'Ⅴ':5,'Ⅵ':6,'Ⅶ':7,'Ⅷ':8,'Ⅸ':9,'Ⅹ':10,'I':1,'II':2,'III':3,'IV':4,'V':5,'VI':6,'VII':7,'VIII':8,'IX':9,'X':10};
+  function craftCharmFamily(name=''){
+    const m=String(name).match(/^(.*?)(?:\s*)(Ⅹ|Ⅸ|Ⅷ|Ⅶ|Ⅵ|Ⅴ|Ⅳ|Ⅲ|Ⅱ|Ⅰ|X|IX|VIII|VII|VI|V|IV|III|II|I)$/i);
+    return m?{base:m[1].trim(),tier:romanCharmRank[m[2].toUpperCase()]||romanCharmRank[m[2]]||0}:{base:String(name).trim(),tier:0};
+  }
+  function craftCharmPower(r){const skills=extractSkills(r);return Object.values(skills).reduce((a,v)=>a+num(v),0)*100+num(r['レア度']);}
+  function craftCharmRows(){
+    // 生産護石は外部CSVが再読込されるまで不変なので、安全に最大強化一覧をキャッシュする。
+    if(state.craftCharmRowsCache)return state.craftCharmRowsCache;
+    const best=new Map();
+    for(const r of state.data.charm){
+      const f=craftCharmFamily(r['名前']); const cur=best.get(f.base);
+      const candidate={row:r,tier:f.tier,power:craftCharmPower(r)};
+      if(!cur||candidate.tier>cur.tier||(candidate.tier===cur.tier&&candidate.power>cur.power))best.set(f.base,candidate);
+    }
+    state.craftCharmRowsCache=[...best.values()].map(x=>x.row).map(r=>({name:r['名前'],rarity:num(r['レア度']),skills:extractSkills(r),armorSlots:[],weaponSlots:[],user:false,craftable:true,maxUpgrade:true}));
+    return state.craftCharmRowsCache;
+  }
+  function allCharms(){
+    const list=[];
+    // 生産護石は登録不要・常時採用。鑑定護石のみ登録済みデータを使用する。
+    list.push(...craftCharmRows());
+    if($('#includeRegisteredCharms').checked)list.push(...state.userCharms.map(normalizeUserCharm));
+    list.push({name:'護石なし',rarity:0,skills:{},armorSlots:[],weaponSlots:[],user:false,craftable:false});
+    return list;
+  }
+
+  function findBaseWeapon(type,name){
+    const key=`${normalizeWeaponType(type||'')}|${name||''}`;
+    if(state.baseWeaponLookupCache.has(key))return state.baseWeaponLookupCache.get(key);
+    const found=state.data.weapon.find(r=>sameWeaponType(r['武器種'],type)&&r['名前']===name) || state.data.weapon.find(r=>r['名前']===name) || null;
+    return limitedCacheSet(state.baseWeaponLookupCache,key,found,700);
+  }
+  function normalizeUserArtianWeapon(w){
+    const base=findBaseWeapon(w.weaponType,w.baseWeaponName);
+    const baseSkills=base?extractSkills(base):(w.baseSkills||{});
+    const skills=mergeSkills(baseSkills,w.groupSkill?{[w.groupSkill]:1}:{},w.seriesSkill?{[w.seriesSkill]:1}:{});
+    const slots=base?slotsOf(base):(w.slots||[]);
+    return {
+      id:w.id,
+      name:w.name||w.baseWeaponName||'登録巨戟アーティア',
+      weaponType:w.weaponType||base?.['武器種']||'',
+      baseWeaponName:w.baseWeaponName||base?.['名前']||'',
+      rarity:8,
+      skills,
+      slots,
+      groupSkill:w.groupSkill||'',
+      seriesSkill:w.seriesSkill||'',
+      userArtian:true
+    };
+  }
+  function selectedWeapon(){
+    const value=$('#weaponSelect').value;
+    if(!value)return null;
+    if(value.startsWith('artian:')){
+      const id=value.slice(7);
+      const w=state.userArtianWeapons.find(x=>x.id===id);
+      return w?normalizeUserArtianWeapon(w):null;
+    }
+    const name=decodeURIComponent(value.startsWith('base:')?value.slice(5):value);
+    const type=$('#weaponType').value;
+    const wr=findBaseWeapon(type,name);
+    return wr?{name:wr['名前'],weaponType:normalizeWeaponType(wr['武器種']||type),skills:extractSkills(wr),slots:slotsOf(wr),rarity:num(wr['レア度']),userArtian:false}:null;
+  }
+  function weaponsForSearch(){
+    const explicit=selectedWeapon();
+    if(explicit)return [explicit];
+    const list=[null];
+    if($('#includeRegisteredArtian').checked){
+      const type=$('#weaponType').value;
+      const users=state.userArtianWeapons
+        .filter(w=>!type||sameWeaponType(w.weaponType,type))
+        .map(normalizeUserArtianWeapon);
+      list.push(...users);
+    }
+    return list;
+  }
+
+  function resistanceOf(row,key){
+    const aliases={fire:['火耐性','火'],water:['水耐性','水'],thunder:['雷耐性','雷'],ice:['氷耐性','氷'],dragon:['龍耐性','竜耐性','龍']};
+    for(const k of aliases[key]||[])if(row[k]!==undefined&&row[k]!=='' )return num(row[k]);
+    return 0;
+  }
+  function rowCandidate(r){
+    const trans=$('#useTranscend').checked,bucket=trans?state.rowCandidateCache.transcended:state.rowCandidateCache.normal;
+    let base=bucket.get(r);
+    if(!base){
+      base={name:r['名前'],rarity:num(r['レア度']),skills:extractSkills(r),slots:transcendedSlots(r),def:num(r['最終防御力']||r['初期防御力']),
+        res:{fire:resistanceOf(r,'fire'),water:resistanceOf(r,'water'),thunder:resistanceOf(r,'thunder'),ice:resistanceOf(r,'ice'),dragon:resistanceOf(r,'dragon')},raw:r};
+      bucket.set(r,base);
+    }
+    // pre/additionalPre は検索ごとに付与するため、キャッシュ本体を変更しないよう浅いコピーを返す。
+    return {...base};
+  }
+  function mergeRes(a,b){return {fire:(a.fire||0)+(b.fire||0),water:(a.water||0)+(b.water||0),thunder:(a.thunder||0)+(b.thunder||0),ice:(a.ice||0)+(b.ice||0),dragon:(a.dragon||0)+(b.dragon||0)}}
+  function preselectRows(part,req,limit=36){
+    const key=`${part}|${stableSkillMapKey(req)}|r${$('#rarityMin').value}-${$('#rarityMax').value}|t${$('#useTranscend').checked?1:0}|l${limit}`;
+    if(state.preselectCache.has(key))return state.preselectCache.get(key);
+    const rows=armorRows(part).map(rowCandidate).map(c=>{const rs=requestedScore(c.skills,req);c.pre=rs.hit*8+slotValue(c.slots)*2+c.def/100;return c}).sort((a,b)=>b.pre-a.pre).slice(0,limit);
+    return limitedCacheSet(state.preselectCache,key,rows,80);
+  }
+
+  function passesResist(r){
+    return r.fire>=num($('#minFire').value)&&r.water>=num($('#minWater').value)&&r.thunder>=num($('#minThunder').value)&&r.ice>=num($('#minIce').value)&&r.dragon>=num($('#minDragon').value);
+  }
+  function satisfiesRequestedSkills(skills,req,omittedNames=[]){
+    const omit=new Set(omittedNames);
+    for(const [name,required] of Object.entries(req)){
+      if(omit.has(name))continue;
+      if((skills[name]||0)<required)return false;
+    }
+    return true;
+  }
+  function requestedLabel(name,raw){
+    const def=skillDefByName(name);
+    if(isSetBonusDef(def)){
+      const lv=targetDisplayLevel(def,raw);
+      return activationLabel(def,lv);
+    }
+    return `${name} Lv${raw}`;
+  }
+  function hideRelaxationSuggestions(){
+    const panel=$('#relaxationPanel'),box=$('#relaxationSuggestions');
+    if(panel)panel.classList.add('hidden');
+    if(box)box.innerHTML='';
+  }
+  function renderRelaxationSuggestions(candidates,req){
+    const panel=$('#relaxationPanel'),box=$('#relaxationSuggestions');
+    if(!panel||!box)return;
+    const names=Object.keys(req);
+    if(!names.length){hideRelaxationSuggestions();return}
+    if(!candidates.length){
+      panel.classList.remove('hidden');
+      box.innerHTML='<div class="relaxation-note">現在の防御力・耐性・レア度などの絞り込み内では、緩和候補を解析できる装備自体が見つかりませんでした。絞り込み条件またはスキルLvを緩めてください。</div>';
+      return
+    }
+    const suggestions=[];
+    const gearKey=(x)=>{
+      const wk=x.weapon?(x.weapon.userArtian?`a:${x.weapon.id}`:`w:${x.weapon.name}`):'none';
+      return x.pieces.map(p=>p.name).join('|')+'|'+(x.charm.id||x.charm.name)+'|'+wk;
+    };
+    // 同一装備を除外して上位候補を解析。条件を外した後は装飾品を再配置して成立判定する。
+    const seenGear=new Set(),analysisPool=[];
+    for(const x of candidates){
+      const key=gearKey(x);if(seenGear.has(key))continue;seenGear.add(key);analysisPool.push(x);
+      if(analysisPool.length>=1800)break;
+    }
+    const countForReq=(candidateReq)=>{
+      let count=0;
+      for(const x of analysisPool){
+        const base=mergeSkills(x.skills,x.charm?.skills||{},x.weapon?.skills||{});
+        const deco=fitDecorations(base,x.armorSlots||[],x.weaponSlots||[],candidateReq);
+        if(satisfiesRequestedSkills(deco.skills,candidateReq))count++;
+      }
+      return count;
+    };
+    const countAfterRemoval=(remove)=>{
+      const removed=new Set(remove);
+      const reducedReq=Object.fromEntries(Object.entries(req).filter(([name])=>!removed.has(name)));
+      return countForReq(reducedReq);
+    };
+
+    // まず「スキルを外す」より軽い緩和として、Lv/発動段階を1段階下げる候補を優先する。
+    for(const [name,selected] of state.selectedSkills.entries()){
+      if(!req[name]||selected.level<=1)continue;
+      const def=skillDefByName(name)||selected;
+      const targetLevel=selected.level-1;
+      const reducedReq={...req,[name]:requiredRawPoints(def,targetLevel)};
+      const count=countForReq(reducedReq);
+      if(count)suggestions.push({type:'level',name,level:targetLevel,count});
+    }
+
+    // 唯一の選択スキルを外すと検索条件そのものが消えるため、1スキル時は「外す候補」を出さない。
+    if(names.length>=2){
+      for(const name of names){
+        const count=countAfterRemoval([name]);
+        if(count)suggestions.push({type:'remove',remove:[name],count});
+      }
+      if(!suggestions.some(s=>s.type==='remove')&&names.length>=2){
+        const maxPairs=Math.min(names.length,12);
+        for(let i=0;i<maxPairs;i++)for(let j=i+1;j<maxPairs;j++){
+          const remove=[names[i],names[j]],count=countAfterRemoval(remove);
+          if(count)suggestions.push({type:'remove',remove,count});
+        }
+      }
+    }
+    suggestions.sort((a,b)=>{
+      const ar=a.type==='level'?0:1, br=b.type==='level'?0:1;
+      if(ar!==br)return ar-br;
+      const an=a.remove?.length||0,bn=b.remove?.length||0;
+      return an-bn||b.count-a.count||String(a.name||a.remove?.join('')||'').localeCompare(String(b.name||b.remove?.join('')||''),'ja');
+    });
+    const show=suggestions.slice(0,12);
+    if(!show.length){
+      panel.classList.remove('hidden');
+      box.innerHTML=names.length===1
+        ?'<div class="relaxation-note">選択中のスキルは1つだけのため、そのスキル自体を外す候補は表示しません。より低いLv/発動段階がない場合は、防御力・耐性・レア度・武器指定などの絞り込み条件を緩めてください。</div>'
+        :'<div class="relaxation-note">Lv/発動段階を下げる、または1〜2個のスキル条件を外しても、現在の絞り込み内では成立候補が見つかりませんでした。Lvや絞り込み条件も緩めてください。</div>';
+      return;
+    }
+    panel.classList.remove('hidden');
+    box.innerHTML=show.map((s,i)=>{
+      if(s.type==='level'){
+        const def=skillDefByName(s.name)||state.selectedSkills.get(s.name);
+        const label=isSetBonusDef(def)?activationLabel(def,s.level):`${s.name} Lv${s.level}`;
+        return `<button class="relaxation-btn" data-index="${i}"><strong>1段階下げる：${esc(label)}</strong><small>このLv/発動段階に下げて装飾品を再配置すると、残りの選択条件をすべて満たす候補が解析範囲内で${s.count}件あります。クリックで変更して再検索。</small></button>`;
+      }
+      const labels=s.remove.map(n=>requestedLabel(n,req[n]));
+      return `<button class="relaxation-btn" data-index="${i}"><strong>${s.remove.length===1?'外す':'2つ外す'}：${esc(labels.join(' ＋ '))}</strong><small>この条件を外し、装飾品を再配置すると、残りの選択スキルをすべて満たす候補が解析範囲内で${s.count}件あります。クリックで条件から外して再検索。</small></button>`;
+    }).join('');
+    $$('#relaxationSuggestions .relaxation-btn').forEach(b=>b.onclick=()=>{
+      const s=show[num(b.dataset.index)];if(!s)return;
+      if(s.type==='level'){
+        const cur=state.selectedSkills.get(s.name);
+        if(cur)cur.level=s.level;
+      }else{
+        for(const name of s.remove)state.selectedSkills.delete(name);
+      }
+      renderSelectedSkills();renderSkillCatalog();searchBuilds();
+    });
+  }
+  async function searchBuilds(options={}){
+    const runId=++state.searchRunId;
+    state.additionalSearchRunId++; // 条件変更前の追加スキル解析を中止
+    if(!state.selectedSkills.size){if(!options.silentEmpty)alert('発動させたいスキルを1つ以上選択してください。');clearRealtimeSearchDisplay();return}
+    $('#searchProgress').classList.remove('hidden'); $('#searchBuildsBtn').disabled=true; $('#showAdditionalSkillsBtn').disabled=true; $('#results').className='results'; $('#results').innerHTML='';
+    if(state.additionalSkillsOpen){$('#additionalSkillsPanel').classList.remove('hidden');$('#additionalSkillsSummary').innerHTML='<span>通常検索を更新中</span>';$('#additionalSkills').innerHTML='<div class="skill-empty">現在条件の検索完了後、全スキル候補を再解析します。</div>'}else $('#additionalSkillsPanel').classList.add('hidden'); $('#relaxationPanel').classList.add('hidden'); $('#relaxationSuggestions').innerHTML='';
+    await new Promise(r=>setTimeout(r,25));
+    if(runId!==state.searchRunId)return;
+    const req=requestedMap(), parts=['head','body','arm','waist','leg'];
+    const expanded=!!options.expanded;
+    const lists=parts.map(p=>preselectRows(p,req,expanded?72:36));
+    if(lists.some(x=>!x.length)){if(runId!==state.searchRunId)return;renderResults([],req);$('#searchProgress').classList.add('hidden');$('#searchBuildsBtn').disabled=false;$('#showAdditionalSkillsBtn').disabled=false;if(state.additionalSkillsOpen)startAdditionalSkillScan(req);return}
+    let beam=[{pieces:[],skills:{},slots:[],def:0,res:{fire:0,water:0,thunder:0,ice:0,dragon:0},score:0}]; const beamWidth=expanded?1600:700;
+    for(let pi=0;pi<lists.length;pi++){
+      const next=[];
+      for(const b of beam)for(const c of lists[pi]){
+        const skills=mergeSkills(b.skills,c.skills), slots=b.slots.concat(c.slots), def=b.def+c.def, res=mergeRes(b.res,c.res);
+        const rs=requestedScore(skills,req); const score=rs.hit*18-rs.miss*4+slotValue(slots)*2+def/130;
+        next.push({pieces:b.pieces.concat(c),skills,slots,def,res,score});
+      }
+      next.sort((a,b)=>b.score-a.score); beam=next.slice(0,beamWidth); await new Promise(r=>setTimeout(r,0)); if(runId!==state.searchRunId)return;
+    }
+
+    const weapons=weaponsForSearch();
+    const charms=allCharms(); const final=[];
+    for(const b of beam.slice(0,expanded?650:250)){
+      for(const ch of (expanded?charms:charms.slice(0,140))){
+        for(const weapon of (expanded?weapons:weapons.slice(0,40))){
+          const base=mergeSkills(b.skills,ch.skills,weapon?.skills||{}), armorSlots=b.slots.concat(ch.armorSlots||[]), weaponSlots=(weapon?.slots||[]).concat(ch.weaponSlots||[]);
+          const deco=fitDecorations(base,armorSlots,weaponSlots,req), rs=requestedScore(deco.skills,req);
+          const score=rs.hit*50-rs.miss*100+slotValue(deco.remainingArmorSlots||[])+slotValue(deco.remainingWeaponSlots||[])+b.def/150;
+          final.push({...b,charm:ch,weapon,baseSkills:base,deco,finalSkills:deco.skills,miss:rs.miss,hit:rs.hit,score,armorSlots,weaponSlots});
+        }
+      }
+    }
+    final.sort((a,b)=>a.miss-b.miss||b.score-a.score);
+    const minDef=num($('#minDefense').value), lim=num($('#resultLimit').value)||50;
+    const eligible=final.filter(x=>x.def>=minDef&&passesResist(x.res));
+    const exact=eligible.filter(x=>x.miss===0&&satisfiesRequestedSkills(x.finalSkills,req));
+    const seen=new Set(), out=[];
+    for(const x of exact){
+      const weaponKey=x.weapon?(x.weapon.userArtian?`artian:${x.weapon.id}`:`base:${x.weapon.name}`):'none';
+      const charmKey=x.charm.id||x.charm.name;
+      const key=x.pieces.map(p=>p.name).join('|')+'|'+charmKey+'|'+weaponKey;
+      if(seen.has(key))continue;seen.add(key);out.push(x);if(out.length>=lim)break
+    }
+    if(runId!==state.searchRunId)return;
+    state.lastSearchRows=out;
+    renderResults(out,req);
+    if(out.length){
+      if(state.additionalSkillsOpen)startAdditionalSkillScan(req);else $('#additionalSkillsPanel').classList.add('hidden');
+      // 完全一致の結果が1件でもある場合、緩和候補は表示しない。
+      hideRelaxationSuggestions();
+    }
+    else{
+      if(state.additionalSkillsOpen)startAdditionalSkillScan(req);else $('#additionalSkillsPanel').classList.add('hidden');
+      renderRelaxationSuggestions(eligible,req);
+    }
+    $('#searchProgress').classList.add('hidden'); $('#searchBuildsBtn').disabled=false; $('#showAdditionalSkillsBtn').disabled=false;
+  }
+
+  function slotsText(arr){return (arr||[]).filter(Boolean).map(x=>'①②③'[x-1]).join(' ')||'ー'}
+  function charmSkillsText(charm){
+    if(!charm?.user)return '';
+    const entries=Object.entries(charm.skills||{}).filter(([,v])=>num(v)>0);
+    return entries.map(([name,lv])=>`${name} Lv${lv}`).join(' / ');
+  }
+  function potentialSkillFromSlots(skillName,kind,slots){
+    // 旧来の簡易見積もり。表示補助用に残すが、追加可能スキルの最終判定は
+    // analyzeAdditionalTarget() で全スロットへ装飾品を再配置して行う。
+    if(!$('#useDecorations').checked)return 0;
+    const decos=decoCandidates(kind).filter(d=>d.skills[skillName]).sort((a,b)=>(b.skills[skillName]-a.skills[skillName])||(a.size-b.size));
+    let gain=0;
+    for(const slot of [...(slots||[])].sort((a,b)=>b-a)){
+      const d=decos.find(x=>x.size<=slot);if(d)gain+=d.skills[skillName]||0;
+    }
+    return gain;
+  }
+  function resultBaseSkills(r){
+    // v3.6.2以前の一時データにも対応。通常の検索結果では baseSkills を保持する。
+    return r.baseSkills||mergeSkills(r.skills||{},r.charm?.skills||{},r.weapon?.skills||{});
+  }
+  function analyzeAdditionalTarget(r,req,def,targetLevel){
+    // 追加Lvの判定では「現在余っているスロット」だけを使わず、装備・護石・武器が持つ
+    // 全スロットへ装飾品を最初から再配置する。これにより、複合珠への置換や副スキルで
+    // 指定条件を維持しつつ追加スキルを伸ばせるケースも拾える。
+    const targetRaw=isSetBonusDef(def)?requiredRawPoints(def,targetLevel):targetLevel;
+    if(isSetBonusDef(def)){
+      const raw=resultBaseSkills(r)[def.name]||0;
+      return {ok:raw>=targetRaw,skills:{...resultBaseSkills(r)},deco:null,viaDecoration:false};
+    }
+    const targetReq={...req,[def.name]:Math.max(num(req[def.name]),targetRaw)};
+    const base=resultBaseSkills(r);
+    const deco=fitDecorations(base,r.armorSlots||[],r.weaponSlots||[],targetReq);
+    const ok=satisfiesRequestedSkills(deco.skills,targetReq);
+    const before=Math.min(num(def.max)||99,num(base[def.name]||0));
+    const after=Math.min(num(def.max)||99,num(deco.skills[def.name]||0));
+    return {ok,skills:deco.skills,deco,viaDecoration:ok&&after>before};
+  }
+
+  function additionalSearchSignature(req){
+    const filters={
+      req,
+      weaponType:$('#weaponType').value,
+      weapon:$('#weaponSelect').value,
+      rarityMin:$('#rarityMin').value,rarityMax:$('#rarityMax').value,
+      minDefense:$('#minDefense').value,minFire:$('#minFire').value,minWater:$('#minWater').value,
+      minThunder:$('#minThunder').value,minIce:$('#minIce').value,minDragon:$('#minDragon').value,
+      transcend:$('#useTranscend').checked,decos:$('#useDecorations').checked,
+      charms:$('#includeRegisteredCharms').checked,artian:$('#includeRegisteredArtian').checked,
+      charmState:state.userCharms.map(x=>[x.id,x.skills,x.slots]),artianState:state.userArtianWeapons.map(x=>[x.id,x.weaponType,x.baseWeaponName,x.groupSkill,x.seriesSkill,x.slots])
+    };
+    return JSON.stringify(filters);
+  }
+  function additionalGearKey(x){
+    const wk=x.weapon?(x.weapon.userArtian?`a:${x.weapon.id}`:`w:${x.weapon.name}`):'none';
+    return x.pieces.map(p=>p.name).join('|')+'|'+(x.charm?.id||x.charm?.name||'none')+'|'+wk;
+  }
+  function extraRichness(skills){
+    let pts=0,n=0;
+    for(const v of Object.values(skills||{})){if(num(v)<=0)continue;n++;pts+=Math.min(5,num(v))}
+    return pts*.15+n*.05;
+  }
+  function trimAdditionalBeam(next,limit){
+    if(next.length<=limit)return next;
+    const chosen=[],keys=new Set(),skillCounts=new Map();
+    const add=(x)=>{
+      const k=x.pieces.map(p=>p.name).join('|');if(keys.has(k))return false;keys.add(k);chosen.push(x);
+      for(const name of Object.keys(x.skills||{}))skillCounts.set(name,(skillCounts.get(name)||0)+1);
+      return true;
+    };
+    const core=Math.floor(limit*.68);for(let i=0;i<Math.min(core,next.length);i++)add(next[i]);
+    // 現在条件だけに偏らず、途中段階で各スキルを持つ構成も一定数残す。
+    for(const x of next){
+      if(chosen.length>=limit)break;
+      const names=Object.keys(x.skills||{});if(names.some(n=>(skillCounts.get(n)||0)<5))add(x);
+    }
+    for(const x of next){if(chosen.length>=limit)break;add(x)}
+    return chosen;
+  }
+  async function buildExpandedAdditionalPool(req,scanId){
+    const parts=['head','body','arm','waist','leg'];
+    // 表示結果の上位50件とは別に、各部位の現行絞り込み対象をすべて再評価する。
+    const lists=parts.map(p=>armorRows(p).map(rowCandidate).map(c=>{
+      const rs=requestedScore(c.skills,req);
+      c.additionalPre=rs.hit*11-rs.miss*2.5+slotValue(c.slots)*2.4+c.def/115+extraRichness(c.skills);
+      return c;
+    }).sort((a,b)=>b.additionalPre-a.additionalPre));
+    if(lists.some(x=>!x.length))return [];
+    let beam=[{pieces:[],skills:{},slots:[],def:0,res:{fire:0,water:0,thunder:0,ice:0,dragon:0},score:0}];
+    const beamWidth=2200;
+    for(let pi=0;pi<lists.length;pi++){
+      const next=[];
+      for(const b of beam)for(const c of lists[pi]){
+        const skills=mergeSkills(b.skills,c.skills),slots=b.slots.concat(c.slots),def=b.def+c.def,res=mergeRes(b.res,c.res);
+        const rs=requestedScore(skills,req);
+        const score=rs.hit*22-rs.miss*3.5+slotValue(slots)*2.25+def/125+extraRichness(skills);
+        next.push({pieces:b.pieces.concat(c),skills,slots,def,res,score});
+      }
+      next.sort((a,b)=>b.score-a.score);
+      // 同じ5部位名は当然1件だが、広い候補を維持するため2200件まで残す。
+      beam=trimAdditionalBeam(next,beamWidth);
+      if(pi<lists.length-1){
+        $('#additionalSkillsSummary').innerHTML=`<span>拡張探索中</span><span>防具 ${pi+1}/5 部位</span><span>候補 ${beam.length}件</span>`;
+        await new Promise(r=>setTimeout(r,0));
+        if(scanId!==state.additionalSearchRunId)return [];
+      }
+    }
+
+    const weapons=weaponsForSearch();
+    const charms=allCharms(); // 最大強化生産護石＋登録鑑定護石＋護石なし
+    const minDef=num($('#minDefense').value);
+    const general=[]; const perSkill=new Map(); const seen=new Set();
+    const retain=(x)=>{
+      const key=additionalGearKey(x);if(seen.has(key))return;seen.add(key);
+      if(general.length<3000)general.push(x);
+      const names=new Set([...Object.keys(x.baseSkills||{}),...Object.keys(x.finalSkills||{})]);
+      for(const name of names){
+        if(!perSkill.has(name))perSkill.set(name,[]);
+        const bucket=perSkill.get(name);if(bucket.length<14)bucket.push(x);
+      }
+    };
+    let checked=0;
+    // 全護石・全登録巨戟を対象にする。防具beamは通常検索より大きく保持。
+    for(const b of beam){
+      if(b.def<minDef||!passesResist(b.res))continue;
+      for(const ch of charms){
+        for(const weapon of weapons){
+          const base=mergeSkills(b.skills,ch.skills,weapon?.skills||{}),armorSlots=b.slots.concat(ch.armorSlots||[]),weaponSlots=(weapon?.slots||[]).concat(ch.weaponSlots||[]);
+          const deco=fitDecorations(base,armorSlots,weaponSlots,req);
+          // 拡張候補プール生成は速度を優先し、現行の自動配置で現在条件を満たす構成を広く収集。
+          // 個々の追加スキル判定では、現在条件＋追加対象スキルを要求して全スロットへ装飾品を再配置する。
+          if(!satisfiesRequestedSkills(deco.skills,req))continue;
+          const rs=requestedScore(deco.skills,req);
+          retain({...b,charm:ch,weapon,baseSkills:base,deco,finalSkills:deco.skills,miss:0,hit:rs.hit,armorSlots,weaponSlots});
+          checked++;
+          // 一般候補は3000件まで保持しつつ、各スキル別の多様性候補は最後まで収集する。
+        }
+      }
+      if(checked&&checked%250===0){await new Promise(r=>setTimeout(r,0));if(scanId!==state.additionalSearchRunId)return []}
+    }
+    // 上位だけに偏らないよう、各スキルを素で持つ候補を必ず合流させる。
+    const union=new Map();
+    for(const x of general)union.set(additionalGearKey(x),x);
+    for(const bucket of perSkill.values())for(const x of bucket)union.set(additionalGearKey(x),x);
+    return [...union.values()].slice(0,4200);
+  }
+  function theoreticalDecorationGain(skillName,kind,slots){
+    if(!$('#useDecorations').checked)return 0;
+    const sig=`${kind}|${skillName}|${[...(slots||[])].filter(Boolean).sort((a,b)=>a-b).join('')}`;
+    if(state.additionalDecoUpperCache.has(sig))return state.additionalDecoUpperCache.get(sig);
+    const decos=decoCandidates(kind).filter(d=>num(d.skills?.[skillName])>0);
+    let gain=0;
+    for(const slot of (slots||[]).filter(Boolean)){
+      let best=0;
+      for(const d of decos)if(d.size<=slot)best=Math.max(best,num(d.skills[skillName]));
+      gain+=best;
+    }
+    state.additionalDecoUpperCache.set(sig,gain);return gain;
+  }
+  function renderAdditionalCandidateList(candidates,poolSize,totalDefs,signature){
+    const box=$('#additionalSkills'),summary=$('#additionalSkillsSummary');
+    if(!state.additionalSkillsOpen)return;
+    if(!candidates.length){
+      summary.innerHTML=`<span>拡張探索 ${poolSize}構成</span><span>全${totalDefs}スキル確認</span><span>追加候補 0件</span>`;
+      box.innerHTML='<div class="skill-empty">現在の指定スキルをすべて維持したまま追加できるスキルは、拡張探索では見つかりませんでした。</div>';
+      return;
+    }
+    candidates.sort((a,b)=>{
+      const ca=skillCategoryOrder.indexOf(a.category),cb=skillCategoryOrder.indexOf(b.category);
+      return (ca<0?999:ca)-(cb<0?999:cb)||a.name.localeCompare(b.name,'ja');
+    });
+    const grouped=new Map();for(const c of candidates){if(!grouped.has(c.category))grouped.set(c.category,[]);grouped.get(c.category).push(c)}
+    const totalLevels=candidates.reduce((n,c)=>n+c.levels.length,0);
+    const decoSkillCount=candidates.filter(c=>c.decoratable).length;
+    summary.innerHTML=`<span>表示50件とは別に再探索</span><span>探索構成 ${poolSize}件</span><span>全${totalDefs}スキル確認</span><span>追加可能 ${candidates.length}種 / ${totalLevels}Lv</span>${$('#useDecorations').checked?`<span>装飾品対応 ${decoSkillCount}種</span>`:''}`;
+    box.innerHTML=skillCategoryOrder.filter(cat=>grouped.has(cat)).map(cat=>{
+      const rowsHtml=grouped.get(cat).map(c=>{
+        const set=isSetBonusDef(c.def),name=skillCatalogName(c.def);
+        const currentText=c.current?(set?activationLabel(c.def,c.current):`現在 Lv${c.current}`):'現在 未指定';
+        const source=c.decoratable&&!set?'<span class="kind-badge">装飾品対応</span>':'';
+        const levels=c.levels.map(l=>{
+          const label=set?activationLabel(c.def,l.target):`Lv${l.target}`;
+          const decoNote=l.decoCount?` / 装飾品${l.decoCount}構成`:' ';
+          return `<button class="add-skill-level" data-name="${esc(c.name)}" data-level="${l.target}" title="${esc(label)}を条件に追加"><strong>${esc(label)}</strong><small>成立 ${l.count}構成${esc(decoNote)}</small></button>`;
+        }).join('');
+        return `<div class="additional-skill-row"><div class="additional-skill-meta"><span class="additional-skill-name">${esc(name)} ${source}</span><span class="additional-skill-current">${esc(currentText)}</span></div><div class="additional-levels">${levels}</div></div>`;
+      }).join('');
+      return `<section class="additional-category"><div class="additional-category-head"><strong>${esc(cat)}</strong><small>${grouped.get(cat).length}スキル</small></div><div class="additional-skill-list">${rowsHtml}</div></section>`;
+    }).join('');
+    $$('#additionalSkills .add-skill-level').forEach(b=>b.onclick=()=>{
+      const name=b.dataset.name,level=num(b.dataset.level),def=skillDefByName(name);if(!def)return;
+      state.selectedSkills.set(name,{name,level:Math.min(def.max,level),max:def.max,kind:def.kind});
+      renderSelectedSkills();renderSkillCatalog();
+      // 現在条件が変わったので、通常結果と追加候補の両方を更新する。
+      searchBuilds({silentEmpty:true,expanded:true});
+    });
+  }
+  async function startAdditionalSkillScan(req=requestedMap()){
+    if(!state.additionalSkillsOpen)return;
+    const panel=$('#additionalSkillsPanel'),box=$('#additionalSkills'),summary=$('#additionalSkillsSummary');
+    panel.classList.remove('hidden');$('#showAdditionalSkillsBtn')?.classList.add('active');
+    if(!Object.keys(req||{}).length){summary.innerHTML='<span>検索条件なし</span>';box.innerHTML='<div class="skill-empty">先に発動させたいスキルを1つ以上選択してください。</div>';return}
+    const signature=additionalSearchSignature(req);
+    const cached=state.additionalSearchCache.get(signature);
+    if(cached){renderAdditionalCandidateList(cached.candidates,cached.poolSize,cached.totalDefs,signature);return}
+    const scanId=++state.additionalSearchRunId;
+    summary.innerHTML='<span>拡張再探索を開始</span><span>装備・護石・巨戟・装飾品を再評価</span>';
+    box.innerHTML='<div class="skill-empty">追加できるスキルを全候補から解析しています。通常の50件表示とは別の検索です。</div>';
+    await new Promise(r=>setTimeout(r,20));if(scanId!==state.additionalSearchRunId)return;
+    const pool=await buildExpandedAdditionalPool(req,scanId);if(scanId!==state.additionalSearchRunId)return;
+    if(!pool.length){summary.innerHTML='<span>拡張探索 0件</span>';box.innerHTML='<div class="skill-empty">現在の指定スキルをすべて維持できる装備候補がありません。先に条件を緩めてください。</div>';return}
+
+    const defs=(state.skillDefs||fallbackSkills).filter(d=>d?.name);
+    const decoNames=decorationSkillNames();
+    const candidates=[];
+    for(let di=0;di<defs.length;di++){
+      if(scanId!==state.additionalSearchRunId)return;
+      const def=defs[di],current=state.selectedSkills.get(def.name)?.level||0,maxLv=num(def.max)||1;
+      if(current>=maxLv)continue;
+      const rowMax=[];
+      for(const r of pool){
+        let found=0,viaDecoration=false;
+        const base=resultBaseSkills(r);
+        if(isSetBonusDef(def)){
+          found=Math.min(maxLv,activationLevelFromRaw(def,num(base[def.name]||0)));
+        }else{
+          // 現在条件を満たした時点で偶発的に発動しているLvは、そのまま追加可能として扱える。
+          const currentFinal=Math.min(maxLv,num(r.finalSkills?.[def.name]||0));
+          found=currentFinal;
+          if(decoNames.has(def.name)&&found<maxLv){
+            const upper=Math.min(maxLv,num(base[def.name]||0)+theoreticalDecorationGain(def.name,'armor',r.armorSlots||[])+theoreticalDecorationGain(def.name,'weapon',r.weaponSlots||[]));
+            for(let target=upper;target>Math.max(current,found);target--){
+              const a=analyzeAdditionalTarget(r,req,def,target);
+              if(a.ok){found=target;viaDecoration=a.viaDecoration;break}
+            }
+          }
+        }
+        rowMax.push({max:found,viaDecoration});
+      }
+      const levels=[];
+      for(let target=current+1;target<=maxLv;target++){
+        const count=rowMax.filter(x=>x.max>=target).length;
+        const decoCount=rowMax.filter(x=>x.max>=target&&x.viaDecoration).length;
+        if(count)levels.push({target,count,decoCount});
+      }
+      if(levels.length)candidates.push({name:def.name,current,total:pool.length,kind:def.kind,def,levels,category:categorizeSkill(def),decoratable:decoNames.has(def.name)});
+      if(di%4===0){
+        summary.innerHTML=`<span>全スキル解析中 ${Math.min(di+1,defs.length)}/${defs.length}</span><span>探索構成 ${pool.length}件</span><span>発見 ${candidates.length}種</span>`;
+        await new Promise(r=>setTimeout(r,0));
+      }
+    }
+    if(scanId!==state.additionalSearchRunId)return;
+    state.additionalSearchCache.set(signature,{candidates,poolSize:pool.length,totalDefs:defs.length});
+    while(state.additionalSearchCache.size>8)state.additionalSearchCache.delete(state.additionalSearchCache.keys().next().value);
+    renderAdditionalCandidateList(candidates,pool.length,defs.length,signature);
+  }
+
+  function toggleAdditionalSkillsPanel(){
+    if(state.additionalSkillsOpen){
+      state.additionalSkillsOpen=false;state.additionalSearchRunId++;
+      $('#additionalSkillsPanel').classList.add('hidden');
+      $('#showAdditionalSkillsBtn').classList.remove('active');
+      return;
+    }
+    state.additionalSkillsOpen=true;
+    $('#showAdditionalSkillsBtn').classList.add('active');
+    if(state.selectedSkills.size){startAdditionalSkillScan(requestedMap());return}
+    $('#additionalSkillsPanel').classList.remove('hidden');
+    $('#additionalSkillsSummary').innerHTML='<span>検索条件なし</span>';
+    $('#additionalSkills').innerHTML='<div class="skill-empty">先に発動させたいスキルを1つ以上選択してください。</div>';
+  }
+
+  function resetSelectedSkills(){
+    state.additionalSearchRunId++;
+    state.selectedSkills.clear();
+    state.additionalSkillsOpen=false;
+    $('#showAdditionalSkillsBtn').classList.remove('active');
+    renderSelectedSkills();
+    renderSkillCatalog();
+    clearRealtimeSearchDisplay();
+  }
+
+  function renderResults(rows,req){
+    if(rows.length)hideRelaxationSuggestions(); // UI整合性の安全策: 成立結果と緩和候補を同時表示しない
+    $('#resultSummary').textContent=rows.length?`${rows.length}件表示 / すべての指定スキルを発動`:'0件 / 指定した全スキルを発動できる装備はありません';
+    const labels=['頭','胴','腕','腰','脚'];
+    $('#results').innerHTML=rows.map((r,idx)=>{
+      const skillChips=Object.entries(req).map(([k,v])=>{const def=skillDefByName(k);if(isSetBonusDef(def)){const actual=activationLevelFromRaw(def,r.finalSkills[k]||0),target=targetDisplayLevel(def,v),shown=activationLabel(def,target);return `<span class="skill-chip ${actual>=target?'hit':''}">${esc(shown)} ${actual>=target?'発動':'未発動'}${actual>target?`（${esc(activationLabel(def,actual))}）`:''}</span>`}return `<span class="skill-chip ${(r.finalSkills[k]||0)>=v?'hit':''}">${esc(k)} Lv${r.finalSkills[k]||0}/${v}</span>`}).join('');
+      const activatedBonuses=(state.skillDefs||fallbackSkills).filter(isSetBonusDef).map(def=>{const lv=activationLevelFromRaw(def,r.finalSkills[def.name]||0);return lv?`<span class="skill-chip series-tag">${esc(activationLabel(def,lv))}</span>`:''}).join('');
+      const equips=r.pieces.map((p,i)=>`<div class="equip"><span>${labels[i]}</span><strong>${esc(p.name)}</strong><small>R${p.rarity} / 防 ${p.def} / ${slotsText(p.slots)}</small></div>`).join('');
+      const rs=r.res||{}; const resistText=`火${rs.fire||0} 水${rs.water||0} 雷${rs.thunder||0} 氷${rs.ice||0} 龍${rs.dragon||0}`;
+      return `<article class="result-card"><div class="result-card-head"><strong>条件達成 #${idx+1}</strong><span class="score">防御 ${r.def} / <span class="result-resists">${resistText}</span></span></div><div class="equipment-grid">${r.weapon?`<div class="equip"><span>武器${r.weapon.userArtian?'（登録巨戟）':''}</span><strong>${esc(r.weapon.name)}</strong><small>${slotsText(r.weapon.slots)}${r.weapon.userArtian?` / ${esc(r.weapon.groupSkill)}＋${esc(r.weapon.seriesSkill)}`:''}</small></div>`:'<div class="equip"><span>武器</span><strong>指定なし</strong><small>登録巨戟を使わない候補</small></div>'}${equips}<div class="equip"><span>護石</span><strong>${esc(r.charm.name)}</strong><small>${r.charm.user?'登録鑑定護石':(r.charm.craftable?'生産護石（最大強化）':'護石なし')} / 防具 ${slotsText(r.charm.armorSlots||[])} / 武器 ${slotsText(r.charm.weaponSlots||[])}</small>${r.charm.user&&charmSkillsText(r.charm)?`<small>スキル: ${esc(charmSkillsText(r.charm))}</small>`:''}</div></div><div class="skill-summary">${skillChips}${activatedBonuses}<span class="skill-chip slot-chip">空き: 防具 ${slotsText(r.deco.remainingArmorSlots||[])} / 武器 ${slotsText(r.deco.remainingWeaponSlots||[])}</span></div>${decorationSummaryHtml(r.deco)}${allActivatedSkillsHtml(r,req)}<div class="card-actions"><button class="ghost save-set" data-index="${idx}">マイセット保存</button></div></article>`;
+    }).join('')||'<div class="empty-state"><strong>指定した全スキルを発動できる候補はありません</strong><span>上の「条件を少し緩める候補」から外すスキルを選ぶか、Lv・絞り込み条件を調整してください。</span></div>';
+    $$('.save-set').forEach(b=>b.onclick=()=>saveSet(rows[num(b.dataset.index)],req));
+  }
+
+  function saveSet(r,req){
+    const item={id:crypto.randomUUID?.()||String(Date.now()),created:new Date().toISOString(),req,pieces:r.pieces.map(p=>({name:p.name,slots:p.slots,rarity:p.rarity,def:p.def})),charm:r.charm,weapon:r.weapon,decos:r.deco.used,decoDetails:r.deco.usedDetails||[],skills:r.finalSkills,def:r.def};
+    state.mySets.unshift(item); saveJson('mhw_my_sets',state.mySets); renderMySets(); alert('マイセットに保存しました。');
+  }
+  function renderMySets(){
+    const box=$('#mySets'); if(!state.mySets.length){box.innerHTML='<div class="empty-state"><strong>保存した装備はありません</strong></div>';return}
+    const labels=['頭','胴','腕','腰','脚'];
+    box.innerHTML=state.mySets.map((s,idx)=>{const savedDeco={used:s.decos||[],usedDetails:s.decoDetails||[]};const faux={deco:savedDeco,finalSkills:s.skills||{}};return `<article class="result-card"><div class="result-card-head"><strong>マイセット ${state.mySets.length-idx}</strong><span class="score">${new Date(s.created).toLocaleString('ja-JP')}</span></div><div class="equipment-grid">${s.weapon?`<div class="equip"><span>武器${s.weapon.userArtian?'（登録巨戟）':''}</span><strong>${esc(s.weapon.name)}</strong>${s.weapon.userArtian?`<small>${esc(s.weapon.groupSkill)}＋${esc(s.weapon.seriesSkill)}</small>`:''}</div>`:''}${s.pieces.map((p,i)=>`<div class="equip"><span>${labels[i]}</span><strong>${esc(p.name)}</strong></div>`).join('')}<div class="equip"><span>護石</span><strong>${esc(s.charm?.name||'なし')}</strong></div></div><div class="skill-summary">${Object.entries(s.req||{}).map(([k,v])=>{const def=skillDefByName(k);if(isSetBonusDef(def)){const target=targetDisplayLevel(def,v),actual=activationLevelFromRaw(def,s.skills?.[k]||0);return `<span class="skill-chip ${actual>=target?'hit':''}">${esc(activationLabel(def,target))}</span>`}return `<span class="skill-chip hit">${esc(k)} Lv${s.skills?.[k]||0}/${v}</span>`}).join('')}</div>${decorationSummaryHtml(savedDeco)}${allActivatedSkillsHtml(faux,s.req||{})}<div class="card-actions"><button class="ghost danger delete-set" data-id="${esc(s.id)}">削除</button></div></article>`}).join('');
+    $$('.delete-set').forEach(b=>b.onclick=()=>{state.mySets=state.mySets.filter(s=>s.id!==b.dataset.id);saveJson('mhw_my_sets',state.mySets);renderMySets()});
+  }
+
+  function populateCharmSkillDatalist(){
+    const list=$('#charmSkillList');if(!list)return;
+    list.innerHTML=charmSkillDefs().map(s=>`<option value="${esc(s.name)}" label="${s.kind==='weapon'?'武器':'防具'} / 最大Lv${s.max}"></option>`).join('');
+  }
+  function resetCharmForm(){
+    $('#charmName').value=''; $('#charmRarity').value='8'; $('#ocrRaw').value='';
+    $('#charmSkillRows').innerHTML=''; for(let i=0;i<3;i++)addCharmSkillRow();
+    $('#charmSlotRows').innerHTML=''; for(let i=0;i<3;i++)addSlotRow(i===0?'weapon':'armor',1);
+  }
+  function updateCharmLevelOptions(row,preferred){
+    const name=row.querySelector('.cs-name').value.trim();
+    const def=charmSkillDefs().find(s=>s.name===name);const max=def?.max||7;const sel=row.querySelector('.cs-level');
+    const cur=num(preferred??sel.value)||1;sel.innerHTML=Array.from({length:Math.max(1,max)},(_,i)=>i+1).map(x=>`<option value="${x}" ${x===Math.min(cur,max)?'selected':''}>Lv${x}</option>`).join('');
+  }
+  function addCharmSkillRow(name='',level=1){
+    if($$('#charmSkillRows .charm-skill-row').length>=3)return;
+    const d=document.createElement('div');d.className='charm-skill-row';d.innerHTML=`<input class="cs-name" list="charmSkillList" autocomplete="off" placeholder="スキル名を入力" value="${esc(name)}"><select class="cs-level"></select><button class="remove">×</button>`;
+    d.querySelector('.remove').onclick=()=>d.remove();d.querySelector('.cs-name').addEventListener('input',()=>updateCharmLevelOptions(d));d.querySelector('.cs-name').addEventListener('change',()=>updateCharmLevelOptions(d));$('#charmSkillRows').appendChild(d);updateCharmLevelOptions(d,level);
+  }
+  function addSlotRow(type='armor',size=0){
+    const d=document.createElement('div');d.className='slot-row';d.innerHTML=`<select class="slot-type"><option value="none">なし</option><option value="weapon" ${type==='weapon'?'selected':''}>武器スロット</option><option value="armor" ${type==='armor'?'selected':''}>防具スロット</option></select><select class="slot-size"><option value="0">ー</option><option value="1" ${num(size)===1?'selected':''}>①</option><option value="2" ${num(size)===2?'selected':''}>②</option><option value="3" ${num(size)===3?'selected':''}>③</option></select>`;$('#charmSlotRows').appendChild(d)
+  }
+
+  function saveCharm(){
+    const rawSkills=$$('#charmSkillRows .charm-skill-row').map(r=>({name:r.querySelector('.cs-name').value.trim(),level:num(r.querySelector('.cs-level').value)})).filter(s=>s.name);
+    const illegal=rawSkills.find(s=>!isCharmLegalSkill(s.name));
+    if(illegal){alert(`「${illegal.name}」は鑑定護石に登録できる武器/防具スキルとして確認できません。候補から選択してください。`);return}
+    const skills=rawSkills;
+    const slots=$$('#charmSlotRows .slot-row').map(r=>({type:r.querySelector('.slot-type').value,size:num(r.querySelector('.slot-size').value)})).filter(s=>s.type!=='none'&&s.size);
+    if(!skills.length&&!slots.length){alert('スキルまたはスロットを入力してください。');return}
+    const charm={id:crypto.randomUUID?.()||String(Date.now()),name:$('#charmName').value.trim()||`鑑定護石 ${state.userCharms.length+1}`,rarity:num($('#charmRarity').value),skills,slots,ocr:$('#ocrRaw').value.trim(),created:new Date().toISOString()};
+    state.userCharms.unshift(charm);saveJson('mhw_user_charms',state.userCharms);renderCharms();renderCounts();resetCharmForm();
+  }
+  function renderCharms(){
+    $('#charmCount').textContent=`${state.userCharms.length}件`; $('#countUserCharms').textContent=state.userCharms.length;
+    const box=$('#registeredCharms');
+    box.innerHTML=state.userCharms.map(c=>`<div class="charm-card"><div class="charm-card-head"><strong>${esc(c.name)}</strong><span>R${c.rarity}</span></div><div class="skill-lines">${(c.skills||[]).map(s=>`${esc(s.name)} Lv${s.level}`).join('<br>')||'スキルなし'}</div><div class="slot-line">${(c.slots||[]).map(s=>`${s.type==='weapon'?'武器':'防具'}${'①②③'[s.size-1]}`).join(' / ')||'スロットなし'}</div><div class="tools"><button class="ghost small edit-charm" data-id="${esc(c.id)}">編集</button><button class="ghost small danger delete-charm" data-id="${esc(c.id)}">削除</button></div></div>`).join('')||'<div class="muted">まだ登録されていません。</div>';
+    $$('.delete-charm').forEach(b=>b.onclick=()=>{state.userCharms=state.userCharms.filter(c=>c.id!==b.dataset.id);saveJson('mhw_user_charms',state.userCharms);renderCharms();renderCounts()});
+    $$('.edit-charm').forEach(b=>b.onclick=()=>editCharm(b.dataset.id));
+  }
+  function editCharm(id){
+    const c=state.userCharms.find(x=>x.id===id);if(!c)return; switchTab('charms'); resetCharmForm();
+    $('#charmName').value=c.name;$('#charmRarity').value=c.rarity;$('#ocrRaw').value=c.ocr||'';$('#charmSkillRows').innerHTML='';(c.skills||[]).forEach(s=>addCharmSkillRow(s.name,s.level));while($$('#charmSkillRows .charm-skill-row').length<3)addCharmSkillRow();$('#charmSlotRows').innerHTML='';(c.slots||[]).forEach(s=>addSlotRow(s.type,s.size));while($$('#charmSlotRows .slot-row').length<3)addSlotRow('none',0);state.userCharms=state.userCharms.filter(x=>x.id!==id);saveJson('mhw_user_charms',state.userCharms);renderCharms();window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function addOcrFiles(files){
+    for(const f of files)if(f.type.startsWith('image/'))state.ocrFiles.push({file:f,url:URL.createObjectURL(f)});renderOcrQueue();
+  }
+  function addClipboardImages(items){
+    const files=[];
+    for(const item of items||[]){
+      if(item instanceof File && item.type.startsWith('image/'))files.push(item);
+      else if(item.kind==='file'&&String(item.type||'').startsWith('image/')){const f=item.getAsFile?.();if(f)files.push(f)}
+    }
+    if(files.length){addOcrFiles(files);$('#ocrStatus').textContent=`貼り付け画像 ${files.length}枚を追加`;return true}
+    return false;
+  }
+  async function pasteCharmFromClipboard(){
+    try{
+      if(navigator.clipboard?.read){
+        const clip=await navigator.clipboard.read();const files=[];
+        for(const item of clip)for(const type of item.types)if(type.startsWith('image/')){const blob=await item.getType(type);files.push(new File([blob],`clipboard-${Date.now()}-${files.length+1}.png`,{type}))}
+        if(files.length){addOcrFiles(files);$('#ocrStatus').textContent=`クリップボード画像 ${files.length}枚を追加`;return}
+      }
+      alert('クリップボード画像を直接取得できませんでした。この「鑑定護石」タブ上で Ctrl+V を押してください。');
+    }catch(e){console.warn(e);alert('ブラウザのクリップボード権限で直接取得できませんでした。このタブ上で Ctrl+V を押してください。')}
+  }
+  function renderOcrQueue(){
+    $('#ocrQueue').innerHTML=state.ocrFiles.map((x,i)=>`<div class="ocr-thumb"><img src="${x.url}"><button data-i="${i}">×</button></div>`).join('');
+    $$('#ocrQueue button').forEach(b=>b.onclick=()=>{const i=num(b.dataset.i);URL.revokeObjectURL(state.ocrFiles[i].url);state.ocrFiles.splice(i,1);renderOcrQueue()});
+    $('#runOcrBtn').disabled=!state.ocrFiles.length;$('#ocrStatus').textContent=state.ocrFiles.length?`${state.ocrFiles.length}枚選択`:'画像未選択';
+  }
+
+  function lev(a,b){
+    a=String(a);b=String(b);const dp=Array(b.length+1).fill(0).map((_,j)=>j);for(let i=1;i<=a.length;i++){let prev=dp[0];dp[0]=i;for(let j=1;j<=b.length;j++){const old=dp[j];dp[j]=Math.min(dp[j]+1,dp[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=old}}return dp[b.length]
+  }
+  function fuzzySkill(line){
+    const clean=line.replace(/\s|Lv\.?\s*\d|レベル\s*\d/g,'').replace(/[・:：\[\]（）()]/g,''); let best=null,score=999;
+    for(const s of charmSkillDefs()){if(clean.includes(s.name))return s.name;const d=lev(clean,s.name);if(d<score){score=d;best=s.name}}
+    return score<=Math.max(2,Math.floor((best||'').length*.35))?best:null;
+  }
+  function parseOcrText(text){
+    const found=[]; const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    for(const line of lines){const name=fuzzySkill(line); if(!name||found.some(x=>x.name===name))continue; const m=line.match(/(?:Lv\.?|レベル)?\s*([1-7])/i);found.push({name,level:m?num(m[1]):1});if(found.length>=3)break}
+    let rarity=8;const rm=text.match(/RARE\s*([5-8])/i)||text.match(/レア(?:度)?\s*([5-8])/);if(rm)rarity=num(rm[1]);
+    const slots=[]; for(const line of lines){if(!/(スロット|装飾品|武器|防具)/.test(line))continue;const nums=[...line.matchAll(/[1-3①②③]/g)].map(m=>({'①':1,'②':2,'③':3}[m[0]]||num(m[0])));for(const n of nums){let type=line.includes('武器')?'weapon':line.includes('防具')?'armor':'armor';slots.push({type,size:n});if(slots.length>=3)break}if(slots.length>=3)break}
+    return {skills:found,slots,rarity};
+  }
+
+  async function runOcr(){
+    if(!state.ocrFiles.length)return; if(!window.Tesseract){alert('OCRライブラリを読み込めませんでした。インターネット接続を確認してください。');return}
+    $('#runOcrBtn').disabled=true;
+    for(let i=0;i<state.ocrFiles.length;i++){
+      $('#ocrStatus').textContent=`解析中 ${i+1}/${state.ocrFiles.length}`;
+      try{
+        const result=await Tesseract.recognize(state.ocrFiles[i].file,'jpn+eng',{logger:m=>{if(m.status==='recognizing text')$('#ocrStatus').textContent=`解析中 ${i+1}/${state.ocrFiles.length} ${Math.round((m.progress||0)*100)}%`}});
+        const text=result.data.text||''; const p=parseOcrText(text); fillCharmFormFromOcr(p,text,i);
+        if(i<state.ocrFiles.length-1){const c=confirm(`画像 ${i+1} の解析結果をフォームに反映しました。内容を確認して登録してください。\n\n残り画像も続けて解析しますか？`);if(!c)break}
+      }catch(e){console.error(e);alert(`OCRに失敗しました: ${e.message}`);break}
+    }
+    $('#ocrStatus').textContent='解析完了';$('#runOcrBtn').disabled=false;
+  }
+  function fillCharmFormFromOcr(p,text,index){
+    resetCharmForm();$('#charmName').value=`画像護石 ${new Date().toLocaleDateString('ja-JP')} #${index+1}`;$('#charmRarity').value=String(p.rarity||8);$('#ocrRaw').value=text;
+    $('#charmSkillRows').innerHTML='';(p.skills||[]).forEach(s=>addCharmSkillRow(s.name,s.level));while($$('#charmSkillRows .charm-skill-row').length<3)addCharmSkillRow();
+    $('#charmSlotRows').innerHTML='';(p.slots||[]).forEach(s=>addSlotRow(s.type,s.size));while($$('#charmSlotRows .slot-row').length<3)addSlotRow('none',0);
+  }
+
+  function artianSkillOptions(kind,selected=''){
+    const defs=(state.skillDefs||fallbackSkills).filter(s=>s.kind===kind).sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    return '<option value="">選択してください</option>'+defs.map(s=>`<option value="${esc(s.name)}" ${s.name===selected?'selected':''}>${esc(s.name)}</option>`).join('');
+  }
+  function populateArtianForm(){
+    const typeSel=$('#artianWeaponType');
+    if(!typeSel)return;
+    const currentType=typeSel.value;
+    const types=weaponTypes();
+    typeSel.innerHTML='<option value="">選択してください</option>'+types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+    if(types.includes(currentType))typeSel.value=currentType;
+    updateArtianBaseWeapons();
+    const groupCurrent=$('#artianGroupSkill').value, seriesCurrent=$('#artianSeriesSkill').value;
+    $('#artianGroupSkill').innerHTML=artianSkillOptions('group',groupCurrent);
+    $('#artianSeriesSkill').innerHTML=artianSkillOptions('series',seriesCurrent);
+  }
+  const artianBaseNameByType={
+    '大剣':'ヴァリアンツァ',
+    '太刀':'ディメンシオ',
+    '片手剣':'ヴェルドロート',
+    '双剣':'ティルトクライス',
+    'ハンマー':'モートヴァンケル',
+    '狩猟笛':'オミリティカ',
+    'ランス':'マテンロウ',
+    'ガンランス':'アル＝ジェネシス',
+    'スラアク':'アルトエレガン',
+    'スラッシュアックス':'アルトエレガン',
+    'チャアク':'テンプス・ギア',
+    'チャージアックス':'テンプス・ギア',
+    '操虫棍':'ディプリエリカ',
+    'ライト':'アムニレーター',
+    'ライトボウガン':'アムニレーター',
+    'ヘビィ':'グライフェン',
+    'ヘビィボウガン':'グライフェン',
+    '弓':'アンギルバイン'
+  };
+  function setArtianSlots(slots){
+    const s=[...(slots||[])];while(s.length<3)s.push(0);for(let i=0;i<3;i++)$(`#artianSlot${i+1}`).value=String(num(s[i]));
+  }
+  function currentArtianSlots(){return [1,2,3].map(i=>num($(`#artianSlot${i}`).value))}
+  function updateArtianBaseWeapons(){
+    const type=$('#artianWeaponType')?.value||'';
+    const sel=$('#artianBaseWeapon'); if(!sel)return;
+    const current=sel.value;
+    const allR8=type?state.data.weapon.filter(r=>sameWeaponType(r['武器種'],type)&&num(r['レア度'])===8):[];
+    const expected=artianBaseNameByType[type]||artianBaseNameByType[Object.keys(artianBaseNameByType).find(k=>sameWeaponType(k,type))]||'';
+    let rows=expected?allR8.filter(r=>r['名前']===expected):[];
+    if(!rows.length)rows=allR8;
+    rows.sort((a,b)=>(a['名前']||'').localeCompare(b['名前']||'','ja'));
+    const fallbackName=expected||`${type||'武器'} RARE8アーティア`;
+    const opts=rows.map(r=>`<option value="${esc(r['名前'])}">${esc(r['名前'])}</option>`).join('');
+    sel.innerHTML='<option value="">選択してください</option>'+opts+`<option value="__manual__">手動登録（${esc(fallbackName)}）</option>`;
+    if(rows.some(r=>r['名前']===current)||current==='__manual__')sel.value=current;
+    else if(rows.length===1)sel.value=rows[0]['名前'];
+    else if(!rows.length)sel.value='__manual__';
+    syncArtianBaseDetails();
+  }
+  function syncArtianBaseDetails(){
+    const type=$('#artianWeaponType')?.value||'',value=$('#artianBaseWeapon')?.value||'';
+    const base=value&&value!=='__manual__'?findBaseWeapon(type,value):null;
+    if(base)setArtianSlots(slotsOf(base));
+    else if(!currentArtianSlots().some(Boolean))setArtianSlots([0,0,0]);
+    const st=$('#artianSaveStatus');if(st)st.textContent=base?'ベース武器を確認しました。スロットを自動入力しています。':'手動登録モード：武器スロットを確認して入力してください。';
+  }
+  function resetArtianForm(){
+    state.editingArtianId=null;
+    $('#artianName').value='';
+    $('#artianWeaponType').value='';
+    updateArtianBaseWeapons();
+    $('#artianGroupSkill').value='';
+    $('#artianSeriesSkill').value='';
+    setArtianSlots([0,0,0]);
+    $('#saveArtianBtn').textContent='巨戟アーティアを登録';
+    $('#cancelArtianEditBtn').classList.add('hidden');
+    $('#artianSaveStatus').textContent='';
+  }
+  function saveArtianWeapon(){
+    const weaponType=normalizeWeaponType($('#artianWeaponType').value);
+    const baseValue=$('#artianBaseWeapon').value;
+    const groupSkill=$('#artianGroupSkill').value;
+    const seriesSkill=$('#artianSeriesSkill').value;
+    if(!weaponType){alert('武器種を選択してください。');return}
+    if(!groupSkill||!seriesSkill){alert('グループスキルとシリーズスキルを1つずつ選択してください。');return}
+    const expected=artianBaseNameByType[weaponType]||artianBaseNameByType[Object.keys(artianBaseNameByType).find(k=>sameWeaponType(k,weaponType))]||`${weaponType} RARE8アーティア`;
+    const baseWeaponName=baseValue&&baseValue!=='__manual__'?baseValue:expected;
+    const base=baseValue&&baseValue!=='__manual__'?findBaseWeapon(weaponType,baseWeaponName):null;
+    const slots=base?slotsOf(base):currentArtianSlots();
+    const item={
+      id:state.editingArtianId||crypto.randomUUID?.()||String(Date.now()),
+      name:$('#artianName').value.trim()||`${baseWeaponName} ${groupSkill}＋${seriesSkill}`,
+      weaponType,baseWeaponName,groupSkill,seriesSkill,
+      baseSkills:base?extractSkills(base):{},
+      slots,created:new Date().toISOString()
+    };
+    if(state.editingArtianId){
+      const i=state.userArtianWeapons.findIndex(w=>w.id===state.editingArtianId);
+      if(i>=0)state.userArtianWeapons[i]=item; else state.userArtianWeapons.unshift(item);
+    }else state.userArtianWeapons.unshift(item);
+    saveJson('mhw_user_artian_weapons',state.userArtianWeapons);
+    renderArtianWeapons(); renderCounts(); populateWeapons();
+    const savedName=item.name; resetArtianForm(); $('#artianSaveStatus').textContent=`「${savedName}」を登録しました。`;
+  }
+
+  function renderArtianWeapons(){
+    const count=$('#artianCount'),box=$('#registeredArtianWeapons');
+    if(!count||!box)return;
+    count.textContent=`${state.userArtianWeapons.length}件`;
+    $('#countUserArtian').textContent=state.userArtianWeapons.length;
+    box.innerHTML=state.userArtianWeapons.map(w=>{
+      const base=findBaseWeapon(w.weaponType,w.baseWeaponName);
+      const slots=base?slotsOf(base):(w.slots||[]);
+      return `<div class="charm-card artian-card"><div class="charm-card-head"><strong>${esc(w.name)}</strong><span>${esc(w.weaponType)} / R8</span></div><div class="skill-lines"><span class="skill-tag group-tag">グループ</span> ${esc(w.groupSkill)} ×1部位<br><span class="skill-tag series-tag">シリーズ</span> ${esc(w.seriesSkill)} ×1部位</div><div class="slot-line">ベース: ${esc(w.baseWeaponName)} / 武器スロット ${slotsText(slots)}</div><div class="tools"><button class="ghost small edit-artian" data-id="${esc(w.id)}">編集</button><button class="ghost small danger delete-artian" data-id="${esc(w.id)}">削除</button></div></div>`;
+    }).join('')||'<div class="muted">まだ登録されていません。</div>';
+    $$('.delete-artian').forEach(b=>b.onclick=()=>{
+      state.userArtianWeapons=state.userArtianWeapons.filter(w=>w.id!==b.dataset.id);
+      saveJson('mhw_user_artian_weapons',state.userArtianWeapons);
+      renderArtianWeapons(); renderCounts(); populateWeapons();
+    });
+    $$('.edit-artian').forEach(b=>b.onclick=()=>editArtianWeapon(b.dataset.id));
+  }
+  function editArtianWeapon(id){
+    const w=state.userArtianWeapons.find(x=>x.id===id); if(!w)return;
+    switchTab('artian');
+    state.editingArtianId=id;
+    $('#artianName').value=w.name||'';
+    $('#artianWeaponType').value=normalizeWeaponType(w.weaponType||'');
+    updateArtianBaseWeapons();
+    const base=findBaseWeapon(w.weaponType,w.baseWeaponName);
+    $('#artianBaseWeapon').value=base?w.baseWeaponName:'__manual__';
+    setArtianSlots(base?slotsOf(base):(w.slots||[]));
+    $('#artianGroupSkill').innerHTML=artianSkillOptions('group',w.groupSkill);
+    $('#artianSeriesSkill').innerHTML=artianSkillOptions('series',w.seriesSkill);
+    $('#saveArtianBtn').textContent='変更を保存';
+    $('#cancelArtianEditBtn').classList.remove('hidden');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function exportArtianWeapons(){
+    const blob=new Blob([JSON.stringify(state.userArtianWeapons,null,2)],{type:'application/json'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=`mhwilds-gog-artian-${new Date().toISOString().slice(0,10)}.json`;a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+  async function importArtianWeapons(file){
+    try{
+      const arr=JSON.parse(await file.text());
+      if(!Array.isArray(arr))throw new Error('配列形式ではありません');
+      state.userArtianWeapons=arr;
+      saveJson('mhw_user_artian_weapons',arr);
+      renderArtianWeapons();renderCounts();populateWeapons();
+    }catch(e){alert(`読込失敗: ${e.message}`)}
+  }
+
+  function exportCharms(){
+    const blob=new Blob([JSON.stringify(state.userCharms,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`mhwilds-charms-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+  }
+  async function importCharms(file){
+    try{const arr=JSON.parse(await file.text());if(!Array.isArray(arr))throw new Error('配列形式ではありません');state.userCharms=arr.map(c=>({...c,skills:(c.skills||[]).filter(s=>!isCharmForbiddenSkill(s.name))}));saveJson('mhw_user_charms',state.userCharms);renderCharms();renderCounts();populateCharmSkillDatalist()}catch(e){alert(`読込失敗: ${e.message}`)}
+  }
+
+
+  function exportAllUserData(){
+    const payload={
+      format:'mhwilds-sim-userdata',
+      version:1,
+      exportedAt:new Date().toISOString(),
+      userCharms:state.userCharms||[],
+      userArtianWeapons:state.userArtianWeapons||[],
+      mySets:state.mySets||[]
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=`mhwilds-userdata-${new Date().toISOString().slice(0,10)}.json`;a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+  async function importAllUserData(file){
+    try{
+      const obj=JSON.parse(await file.text());
+      if(!obj||typeof obj!=='object')throw new Error('JSON形式が不正です');
+      const charms=Array.isArray(obj.userCharms)?obj.userCharms:[];
+      const artian=Array.isArray(obj.userArtianWeapons)?obj.userArtianWeapons:[];
+      const sets=Array.isArray(obj.mySets)?obj.mySets:[];
+      state.userCharms=charms.map(c=>({...c,skills:(c.skills||[]).filter(s=>!isCharmForbiddenSkill(s.name))}));
+      state.userArtianWeapons=artian;
+      state.mySets=sets;
+      saveJson('mhw_user_charms',state.userCharms);
+      saveJson('mhw_user_artian_weapons',state.userArtianWeapons);
+      saveJson('mhw_my_sets',state.mySets);
+      renderCharms();renderArtianWeapons();renderMySets();renderCounts();populateWeapons();populateCharmSkillDatalist();
+      alert(`復元しました。\n鑑定護石: ${state.userCharms.length}件\n巨戟アーティア: ${state.userArtianWeapons.length}件\nマイセット: ${state.mySets.length}件`);
+    }catch(e){alert(`全データ読込失敗: ${e.message}`)}
+  }
+
+  function renderCounts(){
+    $('#countSkills').textContent=(state.skillDefs||[]).length||'-';
+    $('#countArmors').textContent=['head','body','arm','waist','leg'].reduce((a,k)=>a+state.data[k].length,0)||'-';
+    $('#countWeapons').textContent=state.data.weapon.length||'-';$('#countDecos').textContent=state.data.decos.length||'-';$('#countCharms').textContent=state.data.charm.length?craftCharmRows().length:'-';$('#countUserCharms').textContent=state.userCharms.length;$('#countUserArtian').textContent=state.userArtianWeapons.length;
+  }
+
+  function switchTab(name){$$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));$$('.tabpane').forEach(p=>p.classList.toggle('active',p.id===`tab-${name}`))}
+
+  // events
+  $$('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
+  $('#skillSearch').oninput=renderSkillCatalog;$('#weaponType').onchange=()=>{updateWeaponList();scheduleLiveSearch()};$('#searchBuildsBtn').onclick=searchBuilds;$('#showAdditionalSkillsBtn').onclick=toggleAdditionalSkillsPanel;$('#resetSelectedSkillsBtn').onclick=resetSelectedSkills;$('#reloadDataBtn').onclick=loadAllData;
+  // 装飾品の使用可否を切り替えた時も、検索結果・必要珠・追加可能スキルを即時再計算する。
+  $('#useDecorations').onchange=()=>scheduleLiveSearch(80);
+  $('#artianWeaponType').onchange=updateArtianBaseWeapons;$('#artianBaseWeapon').onchange=syncArtianBaseDetails;$('#saveArtianBtn').onclick=saveArtianWeapon;$('#cancelArtianEditBtn').onclick=resetArtianForm;
+  $('#exportArtianBtn').onclick=exportArtianWeapons;$('#importArtianBtn').onclick=()=>$('#importArtianFile').click();$('#importArtianFile').onchange=e=>e.target.files[0]&&importArtianWeapons(e.target.files[0]);
+  $('#clearSearchBtn').onclick=()=>{state.selectedSkills.clear();state.activeSkillCategories.clear();renderSelectedSkills();$('#skillSearch').value='';renderSkillCatalog();$('#minDefense').value=0;for(const id of ['minFire','minWater','minThunder','minIce','minDragon'])$('#'+id).value=-99;clearRealtimeSearchDisplay()};
+  $('#addCharmSkill').onclick=()=>addCharmSkillRow();$('#saveCharmBtn').onclick=saveCharm;
+  $('#exportCharmsBtn').onclick=exportCharms;$('#importCharmsBtn').onclick=()=>$('#importCharmFile').click();$('#importCharmFile').onchange=e=>e.target.files[0]&&importCharms(e.target.files[0]);
+  $('#clearSetsBtn').onclick=()=>{if(confirm('保存したマイセットをすべて削除しますか？')){state.mySets=[];saveJson('mhw_my_sets',[]);renderMySets()}};
+  $('#exportAllUserDataBtn').onclick=exportAllUserData;$('#importAllUserDataBtn').onclick=()=>$('#importAllUserDataFile').click();$('#importAllUserDataFile').onchange=e=>e.target.files[0]&&importAllUserData(e.target.files[0]);
+  const dz=$('#dropZone');dz.onclick=()=>$('#charmImages').click();dz.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')$('#charmImages').click()};
+  $('#charmImages').onchange=e=>addOcrFiles(e.target.files);['dragenter','dragover'].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',e=>addOcrFiles(e.dataTransfer.files));$('#pasteCharmBtn').onclick=pasteCharmFromClipboard;document.addEventListener('paste',e=>{if(!$('#tab-charms').classList.contains('active'))return;if(addClipboardImages(e.clipboardData?.items)){e.preventDefault();dz.classList.add('paste-ready');setTimeout(()=>dz.classList.remove('paste-ready'),500)}});$('#runOcrBtn').onclick=runOcr;$('#hideAdditionalSkills').onclick=()=>{state.additionalSkillsOpen=false;state.additionalSearchRunId++;$('#additionalSkillsPanel').classList.add('hidden');$('#showAdditionalSkillsBtn').classList.remove('active')};
+
+  loadAllData();
+})();
+
+</script>
+</body>
+</html>
