@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MH Wilds Skill Simulator v3.7.5</title>
+  <title>MH Wilds Skill Simulator v3.7.6</title>
   <meta name="description" content="Monster Hunter Wilds向けのブラウザ型スキルシミュレーター。カテゴリ別トグル式スキル一覧・鑑定護石OCR/画像貼り付け・巨戟アーティア登録・追加可能スキル検索に対応。" />
   <style>
 :root{
@@ -339,6 +339,7 @@ main{max-width:1500px;margin:0 auto;padding:22px}.tabpane{display:none}.tabpane.
           <div><strong>巨戟アーティア</strong><span>所持武器ごとにグループスキル1種＋シリーズスキル1種を保存。ベース武器取得失敗時も手動登録でき、武器未指定検索では登録巨戟を自動候補化。</span></div>
           <div><strong>スキル一覧UI</strong><span>全スキルをカテゴリ別に展開し、各スキルをトグルボタンで選択。カテゴリ表示もボタンでON/OFF可能。</span></div>
           <div><strong>画像貼り付け</strong><span>鑑定護石タブでスクリーンショットをCtrl+V貼り付け、またはクリップボード読込ボタンからOCRキューへ直接追加。</span></div>
+          <div><strong>個人データ保存</strong><span>鑑定護石・登録巨戟アーティア・マイセットは、このブラウザのlocalStorageにのみ保存します。GitHubや他の利用者へ登録内容を送信・共有しません。</span></div>
           <div><strong>検索キャッシュ</strong><span>装飾品配置・装飾品候補・防具正規化・スキル/スロット抽出・最大強化生産護石・武器参照を安全にキャッシュ。登録護石/巨戟そのものは固定キャッシュせず、編集後の不整合を防止。</span></div>
           <div><strong>CSV自動フォールバック</strong><span>GitHub Raw取得に失敗した場合はjsDelivrへ自動切替。どれか1経路の障害だけで全体が未読込になる問題を軽減。</span></div>
           <div><strong>追加可能スキル</strong><span>検索結果から到達可能な追加LvをLvごとに全て表示。シリーズ/グループは実際に発動する段階だけを表示します。</span></div>
@@ -355,7 +356,7 @@ main{max-width:1500px;margin:0 auto;padding:22px}.tabpane{display:none}.tabpane.
               <input id="importAllUserDataFile" type="file" accept="application/json,.json" hidden>
             </div>
           </div>
-          <p class="hint">旧版から移行する場合は、旧版で護石/巨戟をJSON書き出しして個別読込するか、今後はこの「全データ書き出し」を使用してください。固定ランチャーから起動すると、バージョン更新でHTMLファイル名が変わっても同じ保存領域を使えます。</p>
+          <p class="hint">登録内容はこのブラウザ内だけに保存されます。同じGitHub Pages URL・同じブラウザプロファイルならサイト更新後も引き継がれます。別のPC・ブラウザ・プロファイルでは別データになります。端末変更やブラウザデータ削除に備えて「全データ書き出し」でバックアップしてください。</p>
         </div>
         <div class="source-box">
           <strong>参照</strong>
@@ -373,7 +374,7 @@ main{max-width:1500px;margin:0 auto;padding:22px}.tabpane{display:none}.tabpane.
 
   <footer>
     <span>非公式ファンツール / CAPCOMとは関係ありません。</span>
-    <span>v3.7.5 / データ確認基準: 2026-09-25</span>
+    <span>v3.7.6 / データ確認基準: 2026-09-25</span>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
